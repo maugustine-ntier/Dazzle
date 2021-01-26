@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: MartinsModelValidtors
+Bundle-SymbolicName: martinsModelValidtors
+Bundle-Version: 1.0.0.qualifier
+Fragment-Host: org.adempiere.base;bundle-version="1.0.0"
+Export-Package: org.adempiere.modelvalidator,
+ org.compiere.model
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
