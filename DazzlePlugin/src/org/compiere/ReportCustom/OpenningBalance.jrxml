@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="OpenningBalance" pageWidth="535" pageHeight="842" columnWidth="535" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="a3b00c81-88d9-4e47-a4c2-cbb824b312e0">
+	<property name="ireport.scriptlethandling" value="0"/>
+	<property name="ireport.encoding" value="UTF-8"/>
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<import value="net.sf.jasperreports.engine.*"/>
+	<import value="java.util.*"/>
+	<import value="net.sf.jasperreports.engine.data.*"/>
+	<parameter name="C_BPartner_ID" class="java.lang.Integer">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="DateAcctFrom" class="java.util.Date">
+		<defaultValueExpression><![CDATA[new Date(100,0,1)]]></defaultValueExpression>
+	</parameter>
+	<parameter name="TOTALS" class="java.util.HashMap" isForPrompting="false"/>
+	<queryString>
+		<![CDATA[select (
+           ( Select (
+                /*(select COALESCE(SUM(iar.GRANDTOTAL),0) as ARInvoices from C_INVOICE iar,*/
+                (select COALESCE(SUM(currencyBase(iar.GrandTotal, iar.C_Currency_ID, iar.dateacct, iar.AD_Client_ID, iar.AD_Org_ID)),0) as ARInvoices from C_INVOICE iar,
+ C_DOCTYPE doc where doc.NAME IN ('AR Invoice','AP CreditMemo','AR Invoice Indirect')
+                AND iar.DOCSTATUS IN ('CO','CL') AND iar.C_BPARTNER_ID =$P{C_BPartner_ID} AND iar.C_DOCTYPE_ID=doc.C_DOCTYPE_ID
+		AND iar.reversal_id is null
+                AND iar.DATEINVOICED < $P{DateAcctFrom})-
+                /*(select COALESCE(SUM(iap.GRANDTOTAL),0) as APInvoices from C_INVOICE iap,*/
+                (select COALESCE(SUM(currencyBase(iap.GrandTotal, iap.C_Currency_ID, iap.dateacct, iap.AD_Client_ID, iap.AD_Org_ID)),0) as APInvoices from C_INVOICE iap,
+ C_DOCTYPE doc  where doc.NAME IN ('AP Invoice','AR Credit Memo','AP Invoice Indirect') --,'AP CreditMemo','AR Credit Memo')
+                AND iap.DOCSTATUS IN ('CO','CL') AND iap.C_BPARTNER_ID =$P{C_BPartner_ID} AND iap.C_DOCTYPE_ID=doc.C_DOCTYPE_ID
+		AND iap.reversal_id is null
+                AND iap.DATEINVOICED < $P{DateAcctFrom})
+                ) as Invoices) +
+
+           ( Select (
+             (select COALESCE(SUM(pap.PAYAMT),0) as APPayments from C_PAYMENT pap, C_DOCTYPE doc  where doc.NAME ='AP Payment'
+              AND pap.DOCSTATUS IN ('CO','CL') AND pap.C_BPARTNER_ID =$P{C_BPartner_ID} AND pap.C_DOCTYPE_ID=doc.C_DOCTYPE_ID
+	      AND pap.reversal_id is null
+              AND pap.DATETRX < $P{DateAcctFrom})-
+              (select COALESCE(SUM(par.PAYAMT),0) as ARPayments from C_PAYMENT  par, C_DOCTYPE doc  where doc.NAME ='AR Receipt'
+              AND par.DOCSTATUS IN ('CO','CL') AND  par.C_BPARTNER_ID =$P{C_BPartner_ID} AND par.C_DOCTYPE_ID=doc.C_DOCTYPE_ID
+	      AND par.reversal_id is null
+              AND par.DATETRX < $P{DateAcctFrom})
+              ) as Payments) +
+
+	( Select ( select coalesce(sum(al.amount * -1.00), 0) from c_allocationline al join c_allocationhdr b on al.c_allocationhdr_id = 				b.c_allocationhdr_id join c_charge c on c.c_charge_id = al.c_charge_id
+           	where al.c_charge_id is not null and b.DOCSTATUS IN ('CO','CL') and al.amount <> 0 and al.C_BPARTNER_ID = $P{C_BPartner_ID} and ( 	(b.DATETRX::date) < $P{DateAcctFrom}::date + 1)
+           	) as Charges) +
+
+	( Select ( select coalesce(sum( -1.00 * (al.discountamt+al.writeoffamt)), 0) from c_allocationline al join c_allocationhdr b on al.c_allocationhdr_id = b.c_allocationhdr_id
+           	where b.DOCSTATUS IN ('CO','CL') and al.C_BPARTNER_ID = $P{C_BPartner_ID} and ( (b.DATETRX::date) < $P{DateAcctFrom}::date + 1)
+           	) as Discounts)
+     ) as OpenningBal]]>
+	</queryString>
+	<field name="openningbal" class="java.math.BigDecimal"/>
+	<variable name="openingbalance" class="java.math.BigDecimal" resetType="None">
+		<variableExpression><![CDATA[$F{openningbal}]]></variableExpression>
+	</variable>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band splitType="Stretch"/>
+	</title>
+	<pageHeader>
+		<band splitType="Stretch"/>
+	</pageHeader>
+	<columnHeader>
+		<band height="23" splitType="Stretch">
+			<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+				<reportElement key="textField" mode="Opaque" x="312" y="1" width="221" height="18" backcolor="#FFFFFF" uuid="b204ad9d-8f98-482e-9c34-71eb0ba0cfa5"/>
+				<box leftPadding="2" rightPadding="2">
+					<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right">
+					<font fontName="SansSerif" size="12" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{openningbal}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement key="element-90" mode="Opaque" x="0" y="1" width="314" height="18" forecolor="#000000" backcolor="#FFFFFF" uuid="1fac944e-2d49-452a-9423-b24c1fc15f95"/>
+				<box leftPadding="2" rightPadding="2">
+					<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font fontName="SansSerif" size="12" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[OPENING BALANCE]]></text>
+			</staticText>
+			<textField isStretchWithOverflow="true" pattern="" isBlankWhenNull="true">
+				<reportElement key="textField-1" mode="Opaque" x="313" y="1" width="0" height="18" forecolor="#33CCFF" backcolor="#00CCFF" uuid="f25dc39c-97e9-426d-950b-b83adc7f8bfa"/>
+				<box leftPadding="2" rightPadding="2">
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right">
+					<font fontName="SansSerif" size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[]]></textFieldExpression>
+			</textField>
+		</band>
+	</columnHeader>
+	<detail>
+		<band splitType="Stretch"/>
+	</detail>
+	<columnFooter>
+		<band splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band splitType="Stretch"/>
+	</pageFooter>
+	<summary>
+		<band splitType="Stretch"/>
+	</summary>
+</jasperReport>

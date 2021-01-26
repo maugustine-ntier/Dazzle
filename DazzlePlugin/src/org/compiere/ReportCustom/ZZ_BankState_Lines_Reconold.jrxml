@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="ZZ_BankState_Lines_Recon" language="groovy" pageWidth="595" pageHeight="842" columnWidth="535" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="0" uuid="49043826-95ab-47ce-8088-4e7a8b757f19">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="918"/>
+	<style name="Title" fontName="SansSerif" fontSize="26" isBold="true" pdfFontName="Helvetica-Bold"/>
+	<style name="SubTitle" forecolor="#666666" fontName="SansSerif" fontSize="18"/>
+	<style name="Column header" forecolor="#FFFFFF" fontName="SansSerif" fontSize="12" isBold="true"/>
+	<style name="Detail" fontName="SansSerif" fontSize="12"/>
+	<parameter name="STARTDATE" class="java.util.Date">
+		<defaultValueExpression><![CDATA[new Date(100,0,1)]]></defaultValueExpression>
+	</parameter>
+	<parameter name="ENDDATE" class="java.util.Date">
+		<defaultValueExpression><![CDATA[new Date(100,0,1)]]></defaultValueExpression>
+	</parameter>
+	<parameter name="Client_ID" class="java.math.BigDecimal">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[select bs.statementdate, bs.dateacct , bsl.line , bsl.description , bsl.trxamt, bsl.stmtamt
+from adempiere.c_bankstatementline bsl,
+     adempiere.c_bankstatement bs
+where  bs.ad_client_id = 1000000
+and bs.dateacct >= to_date('01082013','ddmmyyyy')
+and bs.dateacct <=  to_date('31112013','ddmmyyyy')
+and bs.c_bankstatement_id = bsl.c_bankstatement_id
+and c_payment_id is null
+and c_charge_id is null
+and c_depositbatch_id is null
+and (bsl.trxamt <> 0 or bsl.stmtamt <> 0)
+order by bs.statementdate,bsl.line]]>
+	</queryString>
+	<field name="statementdate" class="java.sql.Timestamp"/>
+	<field name="dateacct" class="java.sql.Timestamp"/>
+	<field name="line" class="java.math.BigDecimal"/>
+	<field name="description" class="java.lang.String"/>
+	<field name="trxamt" class="java.math.BigDecimal"/>
+	<field name="stmtamt" class="java.math.BigDecimal"/>
+	<background>
+		<band height="822" splitType="Stretch">
+			<frame>
+				<reportElement uuid="d3d395c2-1b50-4973-ad5e-a44b9f98cf58" mode="Opaque" x="-20" y="722" width="105" height="100" forecolor="#666666" backcolor="#666666"/>
+				<box>
+					<pen lineWidth="0.0"/>
+					<topPen lineWidth="0.0"/>
+					<leftPen lineWidth="0.0"/>
+					<bottomPen lineWidth="0.0"/>
+					<rightPen lineWidth="0.0"/>
+				</box>
+				<textField isBlankWhenNull="true">
+					<reportElement uuid="3b117582-e20a-412f-87f3-1254eeefdcd7" style="Column header" x="0" y="0" width="104" height="73" forecolor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="SansSerif" size="58" isBold="true" pdfFontName="Helvetica-Bold"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{PAGE_NUMBER}]]></textFieldExpression>
+				</textField>
+				<textField evaluationTime="Report">
+					<reportElement uuid="539c6774-8d72-40a6-9ce7-f1de949d47d0" style="Column header" x="0" y="77" width="104" height="20" forecolor="#000000"/>
+					<box leftPadding="4" rightPadding="4"/>
+					<textElement textAlignment="Center">
+						<font fontName="SansSerif" size="16" isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{PAGE_NUMBER}]]></textFieldExpression>
+				</textField>
+				<line>
+					<reportElement uuid="0eb9fd36-5353-45b1-9756-c076413c7f8c" mode="Transparent" x="42" y="73" width="20" height="1"/>
+				</line>
+			</frame>
+		</band>
+	</background>
+	<title>
+		<band height="152" splitType="Stretch">
+			<staticText>
+				<reportElement uuid="dea7458b-c0b1-4e52-a688-03c7d7de5379" style="Title" x="0" y="0" width="555" height="115"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="30" isBold="false" pdfFontName="Helvetica"/>
+				</textElement>
+				<text><![CDATA[Bank Statement Recon report]]></text>
+			</staticText>
+			<textField pattern="dd/MM/yyyy">
+				<reportElement uuid="e7e13b3b-eab6-486c-8e56-e10011f96a23" x="207" y="132" width="100" height="20"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[$P{STARTDATE}]]></textFieldExpression>
+			</textField>
+			<textField pattern="dd/MM/yyyy">
+				<reportElement uuid="d5ceefb3-840e-4a8f-85ff-30e67710266f" x="417" y="132" width="100" height="20"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[$P{ENDDATE}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="dea3dd29-50cf-4a48-bce4-98d3cf741ff9" x="178" y="132" width="29" height="20"/>
+				<textElement/>
+				<text><![CDATA[Start :]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="7c6703d6-365d-4176-af7b-5bf844bb2ef7" x="389" y="132" width="28" height="20"/>
+				<textElement/>
+				<text><![CDATA[End:]]></text>
+			</staticText>
+		</band>
+	</title>
+	<pageHeader>
+		<band splitType="Stretch"/>
+	</pageHeader>
+	<columnHeader>
+		<band height="40" splitType="Stretch">
+			<frame>
+				<reportElement uuid="192eee32-25f9-410c-85f7-b6470a036f71" mode="Opaque" x="0" y="12" width="555" height="28" backcolor="#666666"/>
+				<staticText>
+					<reportElement uuid="95876137-5f66-466d-ac52-f56dba77e90e" style="Column header" x="76" y="0" width="76" height="28"/>
+					<textElement>
+						<font fontName="SansSerif"/>
+					</textElement>
+					<text><![CDATA[Account Date]]></text>
+				</staticText>
+				<staticText>
+					<reportElement uuid="f3366b48-49e1-4b5b-91f7-578916be9909" style="Column header" x="152" y="0" width="39" height="15"/>
+					<textElement>
+						<font fontName="SansSerif"/>
+					</textElement>
+					<text><![CDATA[Line]]></text>
+				</staticText>
+				<staticText>
+					<reportElement uuid="12e35628-c2dd-4193-9d5d-12bac60159b9" style="Column header" x="191" y="0" width="210" height="15"/>
+					<textElement>
+						<font fontName="SansSerif"/>
+					</textElement>
+					<text><![CDATA[Description]]></text>
+				</staticText>
+				<staticText>
+					<reportElement uuid="2df5e01d-b7f8-4e18-9926-e5b2340b952c" style="Column header" x="401" y="0" width="76" height="28"/>
+					<textElement>
+						<font fontName="SansSerif"/>
+					</textElement>
+					<text><![CDATA[Transaction Amt]]></text>
+				</staticText>
+				<staticText>
+					<reportElement uuid="bb1ee954-2b46-4fac-add3-9c463ceab66a" style="Column header" x="479" y="0" width="76" height="28"/>
+					<textElement>
+						<font fontName="SansSerif"/>
+					</textElement>
+					<text><![CDATA[Statement Amt]]></text>
+				</staticText>
+				<staticText>
+					<reportElement uuid="2c7ba380-1d60-4bca-a42e-cb966f1b98f3" style="Column header" x="0" y="0" width="76" height="28" isPrintWhenDetailOverflows="true"/>
+					<textElement>
+						<font fontName="SansSerif"/>
+					</textElement>
+					<text><![CDATA[ Statement Date]]></text>
+				</staticText>
+			</frame>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="21" splitType="Stretch">
+			<frame>
+				<reportElement uuid="f4d383d5-b446-4ae4-90c6-979995b8b057" x="97" y="1" width="458" height="15"/>
+				<textField>
+					<reportElement uuid="ce1f8559-c0a7-4c85-bfe1-ea2ab2f0a141" style="Detail" x="94" y="0" width="210" height="15"/>
+					<textElement>
+						<font fontName="SansSerif"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{description}]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00">
+					<reportElement uuid="acf8a8c9-cfdf-4934-a6f3-9297c8a250d5" style="Detail" x="304" y="0" width="76" height="15"/>
+					<textElement textAlignment="Right">
+						<font fontName="SansSerif"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{trxamt}]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00">
+					<reportElement uuid="2eed6059-422a-44c5-a789-0765216bb8bd" style="Detail" x="380" y="0" width="76" height="15"/>
+					<textElement textAlignment="Right">
+						<font fontName="SansSerif"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{stmtamt}]]></textFieldExpression>
+				</textField>
+			</frame>
+			<line>
+				<reportElement uuid="981695d4-1306-457b-a84e-625d68c93535" positionType="FixRelativeToBottom" x="97" y="16" width="458" height="1"/>
+				<graphicElement>
+					<pen lineWidth="0.5" lineColor="#999999"/>
+				</graphicElement>
+			</line>
+			<textField pattern="dd/MM/yyyy">
+				<reportElement uuid="468cd352-b604-4dc0-8c7a-301850aee871" style="Detail" x="0" y="0" width="76" height="15"/>
+				<textElement>
+					<font fontName="SansSerif"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{statementdate}]]></textFieldExpression>
+			</textField>
+			<textField pattern="dd/MM/yyyy">
+				<reportElement uuid="f643eda3-f242-48b9-a954-da607130d420" style="Detail" x="76" y="2" width="76" height="15"/>
+				<textElement>
+					<font fontName="SansSerif"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{dateacct}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="3525740d-e65f-4ab0-b2c5-f8e277205957" style="Detail" x="152" y="0" width="39" height="15"/>
+				<textElement>
+					<font fontName="SansSerif"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{line}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band height="100" splitType="Stretch">
+			<textField pattern="EEEEE dd MMMMM yyyy">
+				<reportElement uuid="4b5a5b36-13f1-44eb-9622-4cbd519b8628" style="Column header" x="363" y="0" width="192" height="20" forecolor="#000000"/>
+				<textElement textAlignment="Right">
+					<font fontName="SansSerif" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="b3923784-fdaa-4b33-88b5-9775161b0a9c" style="Column header" x="96" y="0" width="267" height="20" forecolor="#000000"/>
+				<textElement>
+					<font fontName="SansSerif" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[Bank Statement Recon Report]]></text>
+			</staticText>
+		</band>
+	</pageFooter>
+	<summary>
+		<band splitType="Stretch"/>
+	</summary>
+</jasperReport>

@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="ZZ_InvoiceLinePos" pageWidth="535" pageHeight="842" whenNoDataType="AllSectionsNoDetail" columnWidth="535" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="fba45d2c-abc2-4011-a53f-a4c4803d14d7">
+	<property name="ireport.scriptlethandling" value="0"/>
+	<property name="ireport.encoding" value="UTF-8"/>
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<import value="net.sf.jasperreports.engine.*"/>
+	<import value="java.util.*"/>
+	<import value="net.sf.jasperreports.engine.data.*"/>
+	<parameter name="RECORD_ID" class="java.lang.Integer">
+		<parameterDescription><![CDATA[THE  C_PAYMENT_ID to get the payment table record]]></parameterDescription>
+		<defaultValueExpression><![CDATA[new Integer (1000000)]]></defaultValueExpression>
+	</parameter>
+	<parameter name="SUBREPORT_DIR" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA["/sda1/usr/eclipseE/workspace/DazzleMartin/base/src/org/compiere/reportcustom/"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="BASE_PATH" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA["/sda1/usr/eclipseE/workspace/DazzleMartin/base/src/org/compiere/reportcustom/"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="AD_Org_ID" class="java.lang.Integer" isForPrompting="false">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="AD_Client_ID" class="java.lang.Integer" isForPrompting="false">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="image_file_name" class="java.lang.String" isForPrompting="false"/>
+	<queryString>
+		<![CDATA[Select ml.line , ml.movementqty , ml.confirmedqty,
+lf.value as locatorFrom,
+lt.value as locatorto,
+p.description as proddescription , p.value as prodvalue, max(c.currentcostprice) as productcost,
+(max(c.currentcostprice) * ml.movementqty) as linecost
+from adempiere.m_movementLine ml
+left outer join adempiere.m_movement m on ml.m_movement_id = m.m_movement_id
+left outer join adempiere.m_locator lf on ml.m_locator_id = lf.m_locator_id
+left outer join adempiere.m_locator lt on ml.m_locatorto_id = lt.m_locator_id
+left outer join adempiere.m_product p on ml.m_product_id = p.m_product_id
+left outer join adempiere.rv_cost c on ml.m_product_id = c.m_product_id
+where ml.m_movement_id = $P{RECORD_ID}
+group by
+ml.line , ml.movementqty , ml.confirmedqty,
+lf.value,
+lt.value,
+p.description , p.value
+order by ml.line]]>
+	</queryString>
+	<field name="line" class="java.math.BigDecimal"/>
+	<field name="movementqty" class="java.math.BigDecimal"/>
+	<field name="confirmedqty" class="java.math.BigDecimal"/>
+	<field name="locatorfrom" class="java.lang.String"/>
+	<field name="locatorto" class="java.lang.String"/>
+	<field name="proddescription" class="java.lang.String"/>
+	<field name="prodvalue" class="java.lang.String"/>
+	<field name="productcost" class="java.math.BigDecimal"/>
+	<field name="linecost" class="java.math.BigDecimal"/>
+	<variable name="Qty" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{movementqty}]]></variableExpression>
+	</variable>
+	<variable name="confirmQty" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{confirmedqty}]]></variableExpression>
+	</variable>
+	<variable name="Cost" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{productcost}]]></variableExpression>
+	</variable>
+	<variable name="LineCost" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{linecost}]]></variableExpression>
+	</variable>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="2" splitType="Stretch"/>
+	</title>
+	<pageHeader>
+		<band splitType="Stretch"/>
+	</pageHeader>
+	<columnHeader>
+		<band height="33" splitType="Stretch">
+			<staticText>
+				<reportElement uuid="f3b2a6f4-6ce0-4808-bc9a-9d19f5471a36" x="0" y="3" width="43" height="20"/>
+				<textElement/>
+				<text><![CDATA[line]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="6ef3caac-4a7f-4c64-b6a6-ad3b1a3ee672" x="43" y="3" width="170" height="20"/>
+				<textElement/>
+				<text><![CDATA[Product]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="e0ae1875-04d0-419c-975c-a78cdd34d58e" x="213" y="2" width="87" height="20"/>
+				<textElement/>
+				<text><![CDATA[From / To]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="eabbecb3-0bed-45aa-a41f-7755078fb7b7" x="411" y="1" width="62" height="27"/>
+				<box leftPadding="0" rightPadding="2"/>
+				<textElement textAlignment="Right"/>
+				<text><![CDATA[Movement Qty]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="95969ffb-dc74-4329-b840-6a09e74bab62" x="473" y="2" width="62" height="26"/>
+				<box leftPadding="0" rightPadding="2"/>
+				<textElement textAlignment="Right"/>
+				<text><![CDATA[Confirmed Qty]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="c8e83600-cf4e-4e55-ac07-6536e27359c0" x="330" y="3" width="81" height="25"/>
+				<box rightPadding="2"/>
+				<textElement textAlignment="Right"/>
+				<text><![CDATA[Product Cost/ Line Cost]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="43" splitType="Stretch">
+			<textField>
+				<reportElement uuid="a779c91d-b14e-4d9a-afdf-f28e0826b5c9" x="0" y="3" width="43" height="20"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[$F{line}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement uuid="f4942c31-be1c-4d2d-b574-17b1cb137ee8" x="43" y="3" width="170" height="20"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[$F{prodvalue} + "-" + $F{proddescription}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="0ccea798-b1a9-48a8-a7fc-6ee7a3323299" x="213" y="3" width="87" height="20"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[$F{locatorfrom}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="a5104f51-87c1-4537-9e88-601f4da085fa" x="411" y="2" width="62" height="20"/>
+				<box leftPadding="0" rightPadding="2"/>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression><![CDATA[$F{movementqty}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="cfadb31e-1a50-4907-b938-12ab6f96287f" x="473" y="2" width="62" height="20"/>
+				<box leftPadding="0" rightPadding="2"/>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression><![CDATA[$F{confirmedqty}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="6b10e010-a0be-4fda-8225-b4059f69ddbc" x="213" y="23" width="87" height="20"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[$F{locatorto}]]></textFieldExpression>
+			</textField>
+			<textField pattern="¤ #,##0.00">
+				<reportElement uuid="8a2a5133-8b05-4bf8-83e9-6959c58435f5" x="311" y="3" width="100" height="20"/>
+				<box rightPadding="2"/>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression><![CDATA[$F{productcost}]]></textFieldExpression>
+			</textField>
+			<textField pattern="¤ #,##0.00">
+				<reportElement uuid="f7da2284-ea9b-4593-aa02-b0321bcd9266" x="311" y="23" width="100" height="20"/>
+				<box rightPadding="2"/>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression><![CDATA[$F{linecost}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band splitType="Stretch"/>
+	</pageFooter>
+	<summary>
+		<band height="40" splitType="Stretch">
+			<textField pattern="###0.00;-###0.00">
+				<reportElement uuid="9607fc13-f4c2-44fe-80be-08d4e95fefee" x="311" y="0" width="100" height="20"/>
+				<textElement textAlignment="Right">
+					<font isBold="true" isUnderline="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{Cost}]]></textFieldExpression>
+			</textField>
+			<textField pattern="###0.00;-###0.00">
+				<reportElement uuid="8bbb19c7-3beb-4909-ae58-73da73375b0e" x="411" y="0" width="62" height="20"/>
+				<textElement textAlignment="Right">
+					<font isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{Qty}]]></textFieldExpression>
+			</textField>
+			<textField pattern="###0.00;-###0.00">
+				<reportElement uuid="c7e660f6-e080-4dd6-868b-f0bf393909b2" x="473" y="0" width="62" height="20"/>
+				<textElement textAlignment="Right">
+					<font isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{confirmQty}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="8aed6619-a9a9-4363-baed-78fba7af8b78" x="213" y="0" width="100" height="20"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Totals]]></text>
+			</staticText>
+			<textField pattern="###0.00;-###0.00">
+				<reportElement uuid="2def6360-9288-48ef-b17a-41fe5964a4f8" x="311" y="20" width="100" height="20"/>
+				<textElement textAlignment="Right">
+					<font isBold="true" isUnderline="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{LineCost}]]></textFieldExpression>
+			</textField>
+		</band>
+	</summary>
+</jasperReport>

@@ -1,0 +1,264 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE jasperReport PUBLIC "-//JasperReports//DTD JasperReport//EN" "http://jasperreports.sourceforge.net/dtds/jasperreport.dtd">
+
+<jasperReport name="ZZ_CustomerBalances2" pageWidth="792" pageHeight="612" orientation="Landscape" columnWidth="752" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="StartDate" class="java.util.Date">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="EndDate" class="java.util.Date">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="AD_Client_ID" class="java.math.BigDecimal">
+		<defaultValueExpression><![CDATA[new java.math.BigDecimal("1000003")]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[select bp.value, bp.name,
+(select sum(i.GRANDTOTAL)
+from C_INVOICE i,C_Doctype d
+where i.C_DOCTYPE_ID = d.C_DOcType_ID
+and d.docbaseType = 'ARI'
+and trunc(i.DATEACCT) >= $P{StartDate}
+and trunc(i.DATEACCT) <= $P{EndDate}
+and i.C_BPARTNER_ID = bp.C_BPARTNER_ID
+and i.ISSOTRX = 'Y'
+and i.POSTED = 'Y') as INV,
+(select sum(i.GRANDTOTAL)
+from C_INVOICE i,C_Doctype d
+where i.C_DOCTYPE_ID = d.C_DOcType_ID
+and d.docbaseType = 'ARC'
+and trunc(i.DATEACCT) >= $P{StartDate}
+and trunc(i.DATEACCT) <= $P{EndDate}
+and i.C_BPARTNER_ID = bp.C_BPARTNER_ID
+and i.ISSOTRX = 'Y'
+and i.POSTED = 'Y') as CNT,
+
+( select (sum(p.PAYAMT)+sum(p.discountamt)+sum(p.writeoffAMT)) from C_PAYMENT p
+where p.C_BPartner_ID = bp.C_BPartner_ID
+and trunc(p.DATEACCT) >= $P{StartDate}
+and trunc(p.DATEACCT) <= $P{EndDate}
+and p.posted = 'Y'
+and p.ISRECEIPT = 'Y'
+) +
+(SELECT COALESCE(SUM(cl.amount), (
+				0)::NUMERIC) AS cashpay
+			FROM c_cashline cl, c_invoice i,
+				c_cash C
+			WHERE (((((cl.cashtype = 'I'::
+				bpchar) AND (i.c_bpartner_id
+				= bp.c_bpartner_id)) AND (cl.
+				c_invoice_id = i.c_invoice_id
+				)) AND (cl.c_cash_id = C.
+				c_cash_id)) AND (C.docstatus
+				= ANY (ARRAY
+				['CO'::bpchar, 'CL'::bpchar])
+				) and trunc(i.DATEACCT) >= $P{StartDate}
+				 and trunc(i.DATEACCT) <= $P{EndDate}
+                                )
+) as RECTS,
+
+
+COALESCE((select sum(i.GRANDTOTAL)
+from C_INVOICE i,C_Doctype d
+where i.C_DOCTYPE_ID = d.C_DOcType_ID
+and d.docbaseType = 'ARI'
+and trunc(i.DATEACCT) >= $P{StartDate}
+and trunc(i.DATEACCT) <= $P{EndDate}
+and i.C_BPARTNER_ID = bp.C_BPARTNER_ID
+and i.ISSOTRX = 'Y'
+and i.POSTED = 'Y'), 0) -
+COALESCE((select sum(i.GRANDTOTAL)
+from C_INVOICE i,C_Doctype d
+where i.C_DOCTYPE_ID = d.C_DOcType_ID
+and d.docbaseType = 'ARC'
+
+and trunc(i.DATEACCT) >= $P{StartDate}
+and trunc(i.DATEACCT) <= $P{EndDate}
+and i.C_BPARTNER_ID = bp.C_BPARTNER_ID
+and i.ISSOTRX = 'Y'
+and i.POSTED = 'Y'), 0) -
+
+COALESCE(( select (sum(p.PAYAMT)+sum(p.discountamt)+sum(p.writeoffAMT)) from C_PAYMENT p
+where p.C_BPartner_ID = bp.C_BPartner_ID
+
+and trunc(p.DATEACCT) >= $P{StartDate}
+and trunc(p.DATEACCT) <= $P{EndDate}
+and p.posted = 'Y'
+and p.ISRECEIPT = 'Y'
+), 0)
+-
+(SELECT COALESCE(SUM(cl.amount), (
+				0)::NUMERIC) AS cashpay
+			FROM c_cashline cl, c_invoice i,
+				c_cash C
+			WHERE (((((cl.cashtype = 'I'::
+				bpchar) AND (i.c_bpartner_id
+				= bp.c_bpartner_id)) AND (cl.
+				c_invoice_id = i.c_invoice_id
+				)) AND (cl.c_cash_id = C.
+				c_cash_id)) AND (C.docstatus
+				= ANY (ARRAY
+				['CO'::bpchar, 'CL'::bpchar])
+				) and trunc(i.DATEACCT) >= $P{StartDate}
+				 and trunc(i.DATEACCT) <= $P{EndDate}
+                                )
+)
+
+ as bal
+
+
+
+from C_BPARTNER bp
+where bp.isCustomer = 'Y'
+and bp.AD_CLient_ID = $P{AD_Client_ID}
+order by bp.value]]>
+	</queryString>
+	<field name="value" class="java.lang.String"/>
+	<field name="name" class="java.lang.String"/>
+	<field name="inv" class="java.math.BigDecimal"/>
+	<field name="cnt" class="java.math.BigDecimal"/>
+	<field name="rects" class="java.math.BigDecimal"/>
+	<field name="bal" class="java.math.BigDecimal"/>
+	<variable name="TINV" class="java.math.BigDecimal" resetType="None" calculation="Sum">
+		<variableExpression><![CDATA[$V{TINV}.add(($F{inv} == null) ? BigDecimal.ZERO : $F{inv})]]></variableExpression>
+		<initialValueExpression><![CDATA[new java.math.BigDecimal("0")]]></initialValueExpression>
+	</variable>
+	<variable name="TCR" class="java.math.BigDecimal">
+		<variableExpression><![CDATA[$V{TCR}.add(($F{cnt} == null) ? BigDecimal.ZERO : $F{cnt})]]></variableExpression>
+		<initialValueExpression><![CDATA[new java.math.BigDecimal("0")]]></initialValueExpression>
+	</variable>
+	<variable name="TREC" class="java.math.BigDecimal">
+		<variableExpression><![CDATA[$V{TREC}.add(($F{rects} == null) ? BigDecimal.ZERO : $F{rects})]]></variableExpression>
+		<initialValueExpression><![CDATA[new java.math.BigDecimal("0")]]></initialValueExpression>
+	</variable>
+	<background>
+		<band/>
+	</background>
+	<title>
+		<band height="48">
+			<staticText>
+				<reportElement x="0" y="13" width="752" height="20"/>
+				<textElement textAlignment="Center">
+					<font size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Customer Balances]]></text>
+			</staticText>
+		</band>
+	</title>
+	<pageHeader>
+		<band height="25">
+			<textField hyperlinkType="None">
+				<reportElement x="0" y="0" width="752" height="20"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA["For the period: " + new SimpleDateFormat("dd/MM/yyyy").format($P{StartDate}) + " To "  + new SimpleDateFormat("dd/MM/yyyy").format($P{EndDate})]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band height="20">
+			<staticText>
+				<reportElement x="0" y="0" width="100" height="20"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Name]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="233" y="0" width="100" height="20"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Invoices]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="338" y="0" width="100" height="20"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Credit Notes]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="443" y="0" width="100" height="20"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Receipts/WriteOffs]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="548" y="0" width="100" height="20"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Balance]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="21">
+			<textField hyperlinkType="None">
+				<reportElement x="0" y="0" width="233" height="20"/>
+				<textElement/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{name}]]></textFieldExpression>
+			</textField>
+			<textField hyperlinkType="None">
+				<reportElement x="233" y="0" width="100" height="20"/>
+				<textElement/>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[($F{inv}==null) ? new BigDecimal("0"):$F{inv}]]></textFieldExpression>
+			</textField>
+			<textField hyperlinkType="None">
+				<reportElement x="338" y="0" width="100" height="20"/>
+				<textElement/>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{cnt}]]></textFieldExpression>
+			</textField>
+			<textField hyperlinkType="None">
+				<reportElement x="443" y="0" width="100" height="20"/>
+				<textElement/>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{rects}]]></textFieldExpression>
+			</textField>
+			<textField hyperlinkType="None">
+				<reportElement x="548" y="0" width="100" height="20"/>
+				<textElement/>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[(($F{inv} == null) ? BigDecimal.ZERO : $F{inv}).subtract(($F{cnt} == null) ? BigDecimal.ZERO : $F{cnt}).subtract(($F{rects} == null) ? BigDecimal.ZERO : $F{rects})]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band height="22">
+			<textField hyperlinkType="None">
+				<reportElement x="233" y="0" width="100" height="20"/>
+				<textElement/>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{TINV}]]></textFieldExpression>
+			</textField>
+			<textField hyperlinkType="None">
+				<reportElement x="338" y="0" width="100" height="20"/>
+				<textElement/>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{TCR}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="0" y="0" width="233" height="20"/>
+				<textElement/>
+				<text><![CDATA[Totals]]></text>
+			</staticText>
+			<textField hyperlinkType="None">
+				<reportElement x="443" y="0" width="100" height="20"/>
+				<textElement/>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{TREC}]]></textFieldExpression>
+			</textField>
+			<textField hyperlinkType="None">
+				<reportElement x="548" y="0" width="100" height="20"/>
+				<textElement/>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{TINV}.subtract($V{TCR}).subtract($V{TREC})]]></textFieldExpression>
+			</textField>
+		</band>
+	</columnFooter>
+	<pageFooter>
+		<band height="54"/>
+	</pageFooter>
+	<summary>
+		<band height="42"/>
+	</summary>
+</jasperReport>

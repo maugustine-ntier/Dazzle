@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"  ?>
+<!-- Created with iReport - A designer for JasperReports -->
+<!DOCTYPE jasperReport PUBLIC "//JasperReports//DTD Report Design//EN" "http://jasperreports.sourceforge.net/dtds/jasperreport.dtd">
+<jasperReport
+		 name="SuppOpenningBalance"
+		 columnCount="1"
+		 printOrder="Vertical"
+		 orientation="Portrait"
+		 pageWidth="535"
+		 pageHeight="842"
+		 columnWidth="535"
+		 columnSpacing="0"
+		 leftMargin="0"
+		 rightMargin="0"
+		 topMargin="0"
+		 bottomMargin="0"
+		 whenNoDataType="NoPages"
+		 isTitleNewPage="false"
+		 isSummaryNewPage="false">
+	<property name="ireport.scriptlethandling" value="0" />
+	<property name="ireport.encoding" value="UTF-8" />
+	<import value="java.util.*" />
+	<import value="net.sf.jasperreports.engine.*" />
+	<import value="net.sf.jasperreports.engine.data.*" />
+
+	<parameter name="C_BPartner_ID" isForPrompting="true" class="java.math.BigDecimal">
+		<defaultValueExpression ><![CDATA[new java.math.BigDecimal("0")]]></defaultValueExpression>
+	</parameter>
+	<parameter name="DateAcctFrom" isForPrompting="true" class="java.util.Date"/>
+	<parameter name="TOTALS" isForPrompting="false" class="java.util.HashMap"/>
+	<queryString><![CDATA[select ( 
+           ( Select (
+                (select COALESCE(SUM(iar.GRANDTOTAL),0) as ARInvoices from C_INVOICE iar, C_DOCTYPE doc where doc.NAME IN ('AP Invoice','AR Credit Memo')
+                AND iar.PROCESSED='Y' AND iar.C_BPARTNER_ID =$P{C_BPartner_ID} AND iar.C_DOCTYPE_ID=doc.C_DOCTYPE_ID
+		AND iar.DATEINVOICED < $P{DateAcctFrom})-
+                (select COALESCE(SUM(iap.GRANDTOTAL),0) as APInvoices from C_INVOICE iap, C_DOCTYPE doc  where doc.NAME IN ('AR Invoice','AP CreditMemo') --,'AP CreditMemo','AR Credit Memo')
+                AND iap.PROCESSED='Y' AND iap.C_BPARTNER_ID =$P{C_BPartner_ID} AND iap.C_DOCTYPE_ID=doc.C_DOCTYPE_ID
+		AND iap.DATEINVOICED < $P{DateAcctFrom})
+                ) as Invoices) +
+
+           ( Select (
+             (select COALESCE(SUM(pap.PAYAMT),0) as APPayments from C_PAYMENT pap, C_DOCTYPE doc  where doc.NAME ='AR Receipt'
+              AND pap.PROCESSED='Y' AND pap.C_BPARTNER_ID =$P{C_BPartner_ID} AND pap.C_DOCTYPE_ID=doc.C_DOCTYPE_ID
+	      AND pap.DATETRX < $P{DateAcctFrom})-
+              (select COALESCE(SUM(par.PAYAMT),0) as ARPayments from C_PAYMENT  par, C_DOCTYPE doc  where doc.NAME ='AP Payment'
+              AND par.PROCESSED='Y' AND  par.C_BPARTNER_ID =$P{C_BPartner_ID} AND par.C_DOCTYPE_ID=doc.C_DOCTYPE_ID
+	      AND par.DATETRX < $P{DateAcctFrom})
+              ) as Payments)
+     ) as OpenningBal]]></queryString>
+
+	<field name="OPENNINGBAL" class="java.lang.Double"/>
+
+		<background>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</background>
+		<title>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</title>
+		<pageHeader>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</pageHeader>
+		<columnHeader>
+			<band height="23"  isSplitAllowed="true" >
+				<rectangle radius="0" >
+					<reportElement
+						mode="Opaque"
+						x="0"
+						y="1"
+						width="535"
+						height="22"
+						forecolor="#FFFFFF"
+						backcolor="#00CCFF"
+						key="element-22"
+						isPrintRepeatedValues="false"/>
+					<graphicElement stretchType="NoStretch" pen="Thin"/>
+				</rectangle>
+				<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						mode="Opaque"
+						x="312"
+						y="1"
+						width="221"
+						height="18"
+						backcolor="#00CCFF"
+						key="textField"/>
+					<box topBorder="Thin" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" leftPadding="2" rightBorder="Thin" rightBorderColor="#000000" rightPadding="2" bottomBorder="Thin" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Right">
+						<font fontName="Times-Roman" size="12"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$F{OPENNINGBAL}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement
+						mode="Opaque"
+						x="0"
+						y="1"
+						width="314"
+						height="18"
+						forecolor="#000033"
+						backcolor="#00CCFF"
+						key="element-90"/>
+					<box topBorder="Thin" topBorderColor="#000000" leftBorder="Thin" leftBorderColor="#000000" leftPadding="2" rightBorder="None" rightBorderColor="#000000" rightPadding="2" bottomBorder="Thin" bottomBorderColor="#000000"/>
+					<textElement>
+						<font fontName="" pdfFontName="Helvetica-Bold" size="12" isBold="true"/>
+					</textElement>
+				<text><![CDATA[OPENING BALANCE]]></text>
+				</staticText>
+				<textField isStretchWithOverflow="true" pattern="" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						mode="Opaque"
+						x="313"
+						y="1"
+						width="0"
+						height="18"
+						forecolor="#33CCFF"
+						backcolor="#00CCFF"
+						key="textField-1">
+							<printWhenExpression><![CDATA[new Boolean(ru.compiere.report.ReportHelper.addMapValue($P{TOTALS},"TOTALS",$F{OPENNINGBAL}))]]></printWhenExpression>
+						</reportElement>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" leftPadding="2" rightBorder="None" rightBorderColor="#000000" rightPadding="2" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Right">
+						<font fontName="Times-Roman" size="12"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Boolean"><![CDATA[]]></textFieldExpression>
+				</textField>
+			</band>
+		</columnHeader>
+		<detail>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</detail>
+		<columnFooter>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</columnFooter>
+		<pageFooter>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</pageFooter>
+		<summary>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</summary>
+</jasperReport>

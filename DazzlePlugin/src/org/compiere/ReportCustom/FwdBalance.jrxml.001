@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"  ?>
+<!-- Created with iReport - A designer for JasperReports -->
+<!DOCTYPE jasperReport PUBLIC "//JasperReports//DTD Report Design//EN" "http://jasperreports.sourceforge.net/dtds/jasperreport.dtd">
+<jasperReport
+		 name="FwdBalance"
+		 columnCount="1"
+		 printOrder="Vertical"
+		 orientation="Portrait"
+		 pageWidth="102"
+		 pageHeight="595"
+		 columnWidth="102"
+		 columnSpacing="0"
+		 leftMargin="0"
+		 rightMargin="0"
+		 topMargin="0"
+		 bottomMargin="0"
+		 whenNoDataType="NoPages"
+		 isTitleNewPage="false"
+		 isSummaryNewPage="false">
+	<property name="ireport.scriptlethandling" value="0" />
+	<property name="ireport.encoding" value="UTF-8" />
+	<import value="java.util.*" />
+	<import value="net.sf.jasperreports.engine.*" />
+	<import value="net.sf.jasperreports.engine.data.*" />
+
+	<parameter name="DateAcctFrom" isForPrompting="true" class="java.util.Date">
+		<defaultValueExpression ><![CDATA[new Date(100,0,1)]]></defaultValueExpression>
+	</parameter>
+	<parameter name="TOTALS" isForPrompting="false" class="java.util.HashMap"/>
+	<parameter name="C_ElementValue_ID" isForPrompting="false" class="java.lang.Double"/>
+	<queryString><![CDATA[select CASE WHEN ev.accounttype='R'
+            THEN 0.00 
+	    WHEN ev.accounttype='E'
+            THEN 0.00
+            WHEN (sum(COALESCE(fa.AMTACCTDR,0)) - sum(COALESCE(fa.AMTACCTCR,0))) is null
+	    THEN 0.00
+	    WHEN (sum(fa.AMTACCTDR) - sum(fa.AMTACCTCR)) is null
+	    THEN 0.00	 	
+	    ELSE (sum(COALESCE(fa.AMTACCTDR,0)) - sum(COALESCE(fa.AMTACCTCR,0))) 	
+            END as AccountBalance
+FROM  C_ELEMENTVALUE ev
+LEFT OUTER JOIN FACT_ACCT fa ON fa.Account_ID = ev.C_ELEMENTVALUE_ID
+		and (fa.DATEACCT is null OR fa.DATEACCT < $P{DateAcctFrom} )
+where ev.C_ELEMENTVALUE_ID = $P{C_ElementValue_ID} 
+Group by ev.accounttype]]></queryString>
+
+	<field name="accountbalance" class="java.lang.Double"/>
+
+		<background>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</background>
+		<title>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</title>
+		<pageHeader>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</pageHeader>
+		<columnHeader>
+			<band height="18"  isSplitAllowed="true" >
+				<textField isStretchWithOverflow="false" pattern="#,##0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="1"
+						y="0"
+						width="96"
+						height="17"
+						forecolor="#000000"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Right">
+						<font pdfFontName="Helvetica" size="9" isBold="false" isItalic="false" isUnderline="false" isPdfEmbedded ="false" isStrikeThrough="false" />
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[($F{accountbalance} == null) ? new Double("0.00") : $F{accountbalance}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" pattern="" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						mode="Opaque"
+						x="97"
+						y="5"
+						width="0"
+						height="10"
+						forecolor="#FFFFFF"
+						backcolor="#FFFFFF"
+						key="textField-1">
+							<printWhenExpression><![CDATA[new Boolean(ru.compiere.report.ReportHelper.addMapValue($P{TOTALS},"TOTALS",$F{accountbalance}))]]></printWhenExpression>
+						</reportElement>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" leftPadding="2" rightBorder="None" rightBorderColor="#000000" rightPadding="2" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Right">
+						<font fontName="Times-Roman" size="12"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Boolean"><![CDATA[]]></textFieldExpression>
+				</textField>
+			</band>
+		</columnHeader>
+		<detail>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</detail>
+		<columnFooter>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</columnFooter>
+		<pageFooter>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</pageFooter>
+		<summary>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</summary>
+</jasperReport>

@@ -1,0 +1,285 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="AgingAnalysisNewest" pageWidth="535" pageHeight="842" columnWidth="535" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="ce7be9e6-cabd-46b9-9b5e-48f64b8d737b">
+	<property name="ireport.scriptlethandling" value="0"/>
+	<property name="ireport.encoding" value="UTF-8"/>
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<import value="net.sf.jasperreports.engine.*"/>
+	<import value="java.util.*"/>
+	<import value="net.sf.jasperreports.engine.data.*"/>
+	<parameter name="C_BPartner_ID" class="java.lang.Integer">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[SELECT
+        ((COALESCE((SELECT sum((inv.grandtotal - COALESCE((SELECT abs(sum(al.amount)) AS abs
+FROM c_allocationline al, c_allocationhdr ah WHERE (((al.c_invoice_id = inv.c_invoice_id) AND
+(al.c_allocationhdr_id = ah.c_allocationhdr_id)) AND (ah.docstatus <> ALL (ARRAY['RE'::bpchar, 'VO'::bpchar])))), (0)::numeric)))
+AS sum FROM c_invoice inv, c_doctype doc WHERE inv.reversal_id is null AND ((((((inv.processed = 'Y'::bpchar) AND ((doc.name)::text = ANY
+((ARRAY['AR Invoice'::character varying,'AR Invoice Indirect'::character varying, 'AP CreditMemo'::character varying])::text[]))) AND
+(inv.c_bpartner_id = $P{C_BPartner_ID})) AND (doc.c_doctype_id = inv.c_doctype_id)) AND
+((trunc(getdate(), 'MM/DD/YYYY'::character varying) - trunc((inv.dateinvoiced)::timestamp with
+time zone, 'MM/DD/YYYY'::character varying)) > 90)) AND (inv.docstatus = ANY (ARRAY['CO'::bpchar, 'CL'::bpchar])))), (0)::numeric) -
+COALESCE((SELECT sum((inv.grandtotal - COALESCE((SELECT abs(sum(al.amount)-sum(al.discountamt)) AS abs FROM c_allocationline al, c_allocationhdr ah
+ WHERE (((al.c_invoice_id = inv.c_invoice_id) AND (al.c_allocationhdr_id = ah.c_allocationhdr_id)) AND (ah.docstatus <>
+ALL (ARRAY['RE'::bpchar, 'VO'::bpchar])))), (0)::numeric))) AS sum FROM c_invoice inv, c_doctype doc
+WHERE inv.reversal_id is null AND ((((((inv.processed = 'Y'::bpchar) AND ((doc.name)::text = ANY ((ARRAY['AP Invoice'::character
+varying,'AP Invoice Indirect'::character varying, 'AR Credit Memo'::character varying])::text[]))) AND (inv.c_bpartner_id = $P{C_BPartner_ID}))
+AND (doc.c_doctype_id = inv.c_doctype_id)) AND ((trunc(getdate(), 'MM/DD/YYYY'::character varying) - trunc((inv.dateinvoiced)::timestamp with
+time zone, 'MM/DD/YYYY'::character varying)) > 90))
+ AND (inv.docstatus = ANY (ARRAY['CO'::bpchar, 'CL'::bpchar])))), (0)::numeric)) -
+COALESCE((SELECT sum((pay.payamt - COALESCE((SELECT CASE WHEN ((pay.docstatus = 'RE'::bpchar) AND
+((abs(sum(al.amount)-sum(al.discountamt)) * (-1)::numeric) = pay.payamt)) THEN (abs(sum(al.amount)-sum(al.discountamt)) * (-1)::numeric)
+WHEN ((pay.docstatus = 'RE'::bpchar) AND (abs(sum(al.amount)-sum(al.discountamt)) = pay.payamt)) THEN abs(sum(al.amount)-sum(al.discountamt))
+WHEN ((pay.docstatus = 'RE'::bpchar) AND ((abs(sum(al.amount)-sum(al.discountamt)) * (-1)::numeric) <> pay.payamt)) THEN (0)::numeric
+ WHEN ((pay.docstatus = 'CO'::bpchar) AND (pay.payamt < (0)::numeric))
+THEN (abs(sum(al.amount)-sum(al.discountamt)) * (-1)::numeric) ELSE abs(sum(al.amount)-sum(al.discountamt)) END AS abs
+FROM c_allocationline al, c_allocationhdr ah WHERE (((al.c_payment_id = pay.c_payment_id)
+AND (al.c_allocationhdr_id = ah.c_allocationhdr_id)) AND (ah.docstatus <> ALL (ARRAY['RE'::bpchar, 'VO'::bpchar])))),
+(0)::numeric))) AS sum FROM c_payment pay WHERE pay.reversal_id is null AND (((((pay.processed = 'Y'::bpchar)
+ AND (pay.c_bpartner_id = $P{C_BPartner_ID})) AND ((trunc(getdate(), 'MM/DD/YYYY'::character varying) - trunc((pay.datetrx)::timestamp
+ with time zone, 'MM/DD/YYYY'::character varying)) > 90)) AND (pay.docstatus =
+ANY (ARRAY['CO'::bpchar, 'CL'::bpchar, 'RE'::bpchar]))) AND (COALESCE(pay.payamt, (0)::numeric) <> (0)::numeric))),
+(0)::numeric)) AS ninety,
+
+        ((COALESCE((SELECT sum((inv.grandtotal - COALESCE((SELECT abs(sum(al.amount)) AS abs
+FROM c_allocationline al, c_allocationhdr ah WHERE (((al.c_invoice_id = inv.c_invoice_id) AND (al.c_allocationhdr_id =
+ah.c_allocationhdr_id)) AND (ah.docstatus <> ALL (ARRAY['RE'::bpchar, 'VO'::bpchar])))), (0)::numeric))) AS sum
+ FROM c_invoice inv, c_doctype doc WHERE inv.reversal_id is null AND(((((((inv.processed = 'Y'::bpchar) AND ((doc.name)::text = ANY
+((ARRAY['AR Invoice'::character varying,'AR Invoice Indirect'::character varying, 'AP CreditMemo'::character varying])::text[]))) AND
+(inv.c_bpartner_id = $P{C_BPartner_ID})) AND (doc.c_doctype_id = inv.c_doctype_id)) AND
+((trunc(getdate(), 'MM/DD/YYYY'::character varying) - trunc((inv.dateinvoiced)::timestamp with
+time zone, 'MM/DD/YYYY'::character varying)) > 60)) AND ((trunc(getdate(), 'MM/DD/YYYY'::character varying) - trunc((inv.dateinvoiced)::timestamp with
+time zone, 'MM/DD/YYYY'::character varying)) <= 90)) AND (inv.docstatus =
+ANY (ARRAY['CO'::bpchar, 'CL'::bpchar])))), (0)::numeric) - COALESCE((SELECT sum((inv.grandtotal -
+COALESCE((SELECT abs(sum(al.amount)-sum(al.discountamt)) AS abs FROM c_allocationline al, c_allocationhdr ah WHERE
+(((al.c_invoice_id = inv.c_invoice_id) AND (al.c_allocationhdr_id = ah.c_allocationhdr_id))
+AND (ah.docstatus <> ALL (ARRAY['RE'::bpchar, 'VO'::bpchar])))), (0)::numeric))) AS sum
+ FROM c_invoice inv, c_doctype doc WHERE inv.reversal_id is null AND (((((((inv.processed = 'Y'::bpchar) AND ((doc.name)::text =
+ANY ((ARRAY['AP Invoice'::character varying,'AP Invoice Indirect'::character varying, 'AR Credit Memo'::character varying])::text[])))
+AND (inv.c_bpartner_id = $P{C_BPartner_ID})) AND (doc.c_doctype_id = inv.c_doctype_id))
+AND ((trunc(getdate(), 'MM/DD/YYYY'::character varying) - trunc((inv.dateinvoiced)::timestamp with
+time zone, 'MM/DD/YYYY'::character varying)) > 60)) AND ((trunc(getdate(), 'MM/DD/YYYY'::character varying) - trunc((inv.dateinvoiced)::timestamp with
+time zone, 'MM/DD/YYYY'::character varying)) <= 90)) AND (inv.docstatus =
+ANY (ARRAY['CO'::bpchar, 'CL'::bpchar])))), (0)::numeric)) - COALESCE((SELECT sum((pay.payamt - COALESCE((SELECT CASE
+ WHEN ((pay.docstatus = 'RE'::bpchar) AND ((abs(sum(al.amount)-sum(al.discountamt)) * (-1)::numeric) = pay.payamt)) THEN (abs(sum(al.amount)-sum(al.discountamt))
+* (-1)::numeric) WHEN ((pay.docstatus = 'RE'::bpchar) AND (abs(sum(al.amount)-sum(al.discountamt)) = pay.payamt)) THEN abs(sum(al.amount)-sum(al.discountamt))
+WHEN ((pay.docstatus = 'RE'::bpchar) AND ((abs(sum(al.amount)-sum(al.discountamt)) * (-1)::numeric) <> pay.payamt)) THEN (0)::numeric
+WHEN ((pay.docstatus = 'CO'::bpchar) AND (pay.payamt < (0)::numeric)) THEN (abs(sum(al.amount)-sum(al.discountamt)) * (-1)::numeric)
+ELSE abs(sum(al.amount)-sum(al.discountamt)) END AS abs FROM c_allocationline al, c_allocationhdr ah WHERE (((al.c_payment_id = pay.c_payment_id)
+ AND (al.c_allocationhdr_id = ah.c_allocationhdr_id)) AND (ah.docstatus <> ALL (ARRAY['RE'::bpchar, 'VO'::bpchar])))),
+(0)::numeric))) AS sum FROM c_payment pay WHERE pay.reversal_id is null AND((((((pay.processed = 'Y'::bpchar) AND (pay.c_bpartner_id = $P{C_BPartner_ID}))
+ AND ((trunc(getdate(), 'MM/DD/YYYY'::character varying) - trunc((pay.datetrx)::timestamp
+ with time zone, 'MM/DD/YYYY'::character varying)) > 60)) AND ((trunc(getdate(), 'MM/DD/YYYY'::character varying) - trunc((pay.datetrx)::timestamp
+ with time zone, 'MM/DD/YYYY'::character varying)) <= 90)) AND
+(pay.docstatus = ANY (ARRAY['CO'::bpchar, 'CL'::bpchar, 'RE'::bpchar]))) AND (COALESCE(pay.payamt,
+(0)::numeric) <> (0)::numeric))), (0)::numeric)) AS sixty,
+
+        ((COALESCE((SELECT sum((inv.grandtotal -
+COALESCE((SELECT abs(sum(al.amount)) AS abs FROM c_allocationline al, c_allocationhdr ah WHERE
+(((al.c_invoice_id = inv.c_invoice_id) AND (al.c_allocationhdr_id = ah.c_allocationhdr_id))
+AND (ah.docstatus <> ALL (ARRAY['RE'::bpchar, 'VO'::bpchar])))), (0)::numeric))) AS sum
+FROM c_invoice inv, c_doctype doc WHERE inv.reversal_id is null AND (((((((inv.processed = 'Y'::bpchar) AND ((doc.name)::text =
+ANY ((ARRAY['AR Invoice'::character varying, 'AR Invoice Indirect'::character varying,'AP CreditMemo'::character varying])::text[])))
+AND (inv.c_bpartner_id = $P{C_BPartner_ID})) AND (doc.c_doctype_id = inv.c_doctype_id)) AND
+((trunc(getdate(), 'MM/DD/YYYY'::character varying) - trunc((inv.dateinvoiced)::timestamp with
+time zone, 'MM/DD/YYYY'::character varying)) > 30)) AND ((trunc(getdate(), 'MM/DD/YYYY'::character varying) - trunc((inv.dateinvoiced)::timestamp with
+time zone, 'MM/DD/YYYY'::character varying)) <= 60))
+AND (inv.docstatus = ANY (ARRAY['CO'::bpchar, 'CL'::bpchar])))), (0)::numeric) -
+COALESCE((SELECT sum((inv.grandtotal - COALESCE((SELECT abs(sum(al.amount)-sum(al.discountamt)) AS abs
+FROM c_allocationline al, c_allocationhdr ah WHERE (((al.c_invoice_id = inv.c_invoice_id)
+AND (al.c_allocationhdr_id = ah.c_allocationhdr_id)) AND (ah.docstatus <> ALL (ARRAY['RE'::bpchar,
+'VO'::bpchar])))), (0)::numeric))) AS sum FROM c_invoice inv, c_doctype doc WHERE inv.reversal_id is null AND (((((((inv.processed =
+'Y'::bpchar) AND ((doc.name)::text = ANY ((ARRAY['AP Invoice'::character varying,'AP Invoice Indirect'::character varying, 'AR Credit Memo'::character varying])::text[])))
+AND (inv.c_bpartner_id = $P{C_BPartner_ID})) AND (doc.c_doctype_id = inv.c_doctype_id)) AND
+((trunc(getdate(), 'MM/DD/YYYY'::character varying) - trunc((inv.dateinvoiced)::timestamp with
+time zone, 'MM/DD/YYYY'::character varying)) > 30)) AND ((trunc(getdate(), 'MM/DD/YYYY'::character varying) - trunc((inv.dateinvoiced)::timestamp with
+time zone, 'MM/DD/YYYY'::character varying)) <= 60)) AND
+(inv.docstatus = ANY (ARRAY['CO'::bpchar, 'CL'::bpchar])))), (0)::numeric)) - COALESCE((SELECT sum((pay.payamt -
+COALESCE((SELECT CASE WHEN ((pay.docstatus = 'RE'::bpchar) AND ((abs(sum(al.amount)-sum(al.discountamt)) * (-1)::numeric) = pay.payamt))
+THEN (abs(sum(al.amount)-sum(al.discountamt)) * (-1)::numeric) WHEN ((pay.docstatus = 'RE'::bpchar) AND (abs(sum(al.amount)-sum(al.discountamt)) = pay.payamt))
+THEN abs(sum(al.amount)-sum(al.discountamt)) WHEN ((pay.docstatus = 'RE'::bpchar) AND ((abs(sum(al.amount)-sum(al.discountamt)) * (-1)::numeric) <> pay.payamt))
+THEN (0)::numeric WHEN ((pay.docstatus = 'CO'::bpchar) AND (pay.payamt < (0)::numeric)) THEN (abs(sum(al.amount)-sum(al.discountamt)) * (-1)::numeric)
+ ELSE abs(sum(al.amount)-sum(al.discountamt)) END AS abs FROM c_allocationline al, c_allocationhdr ah WHERE (((al.c_payment_id = pay.c_payment_id)
+AND (al.c_allocationhdr_id = ah.c_allocationhdr_id)) AND (ah.docstatus <> ALL (ARRAY['RE'::bpchar, 'VO'::bpchar])))), (0)::numeric)))
+AS sum FROM c_payment pay WHERE pay.reversal_id is null AND ((((((pay.processed = 'Y'::bpchar) AND (pay.c_bpartner_id = $P{C_BPartner_ID})) AND
+((trunc(getdate(), 'MM/DD/YYYY'::character varying) - trunc((pay.datetrx)::timestamp
+ with time zone, 'MM/DD/YYYY'::character varying)) > 30)) AND ((trunc(getdate(), 'MM/DD/YYYY'::character varying) - trunc((pay.datetrx)::timestamp
+ with time zone, 'MM/DD/YYYY'::character varying)) <= 60)) AND (pay.docstatus = ANY
+ (ARRAY['CO'::bpchar, 'CL'::bpchar, 'RE'::bpchar]))) AND (COALESCE(pay.payamt, (0)::numeric) <> (0)::numeric))), (0)::numeric))
+AS thirty,
+
+        ((COALESCE((SELECT sum((inv.grandtotal - COALESCE((SELECT abs(sum(al.amount)) AS abs
+FROM c_allocationline al, c_allocationhdr ah WHERE (((al.c_invoice_id = inv.c_invoice_id) AND
+ (al.c_allocationhdr_id = ah.c_allocationhdr_id)) AND (ah.docstatus <> ALL (ARRAY['RE'::bpchar, 'VO'::bpchar])))),
+(0)::numeric))) AS sum FROM c_invoice inv, c_doctype doc WHERE inv.reversal_id is null AND ((((((inv.processed = 'Y'::bpchar) AND ((doc.name)::text =
+ANY ((ARRAY['AR Invoice'::character varying,'AR Invoice Indirect'::character varying, 'AP CreditMemo'::character varying])::text[]))) AND (inv.c_bpartner_id =
+$P{C_BPartner_ID})) AND (doc.c_doctype_id = inv.c_doctype_id)) AND ((trunc(getdate(), 'MM/DD/YYYY'::character varying) - trunc((inv.dateinvoiced)::timestamp with
+time zone, 'MM/DD/YYYY'::character varying)) <= 30)) AND (inv.docstatus =
+ANY (ARRAY['CO'::bpchar, 'CL'::bpchar])))), (0)::numeric) - COALESCE((SELECT sum((inv.grandtotal -
+COALESCE((SELECT abs(sum(al.amount)-sum(al.discountamt)) AS abs FROM c_allocationline al, c_allocationhdr ah
+WHERE (((al.c_invoice_id = inv.c_invoice_id) AND (al.c_allocationhdr_id = ah.c_allocationhdr_id)) AND
+ (ah.docstatus <> ALL (ARRAY['RE'::bpchar, 'VO'::bpchar])))), (0)::numeric))) AS sum FROM c_invoice inv, c_doctype doc
+WHERE inv.reversal_id is null AND ((((((inv.processed = 'Y'::bpchar) AND ((doc.name)::text = ANY ((ARRAY['AP Invoice'::character varying,'AP Invoice Indirect'::character varying,
+'AR Credit Memo'::character varying])::text[]))) AND (inv.c_bpartner_id = $P{C_BPartner_ID})) AND (doc.c_doctype_id =
+inv.c_doctype_id)) AND ((trunc(getdate(), 'MM/DD/YYYY'::character varying) - trunc((inv.dateinvoiced)::timestamp with
+time zone, 'MM/DD/YYYY'::character varying)) <= 30)) AND (inv.docstatus = ANY (ARRAY['CO'::bpchar, 'CL'::bpchar])))), (0)::numeric)) -
+COALESCE((SELECT sum((pay.payamt - COALESCE((SELECT CASE WHEN ((pay.docstatus = 'RE'::bpchar) AND ((abs(sum(al.amount)-sum(al.discountamt)) *
+(-1)::numeric) = pay.payamt)) THEN (abs(sum(al.amount)-sum(al.discountamt)) * (-1)::numeric) WHEN ((pay.docstatus = 'RE'::bpchar) AND
+ (abs(sum(al.amount)-sum(al.discountamt)) = pay.payamt)) THEN abs(sum(al.amount)-sum(al.discountamt)) WHEN ((pay.docstatus = 'RE'::bpchar) AND ((abs(sum(al.amount)-sum(al.discountamt))
+ * (-1)::numeric) <> pay.payamt)) THEN (0)::numeric WHEN ((pay.docstatus = 'CO'::bpchar) AND (pay.payamt < (0)::numeric))
+THEN (abs(sum(al.amount)-sum(al.discountamt)) * (-1)::numeric) ELSE abs(sum(al.amount)-sum(al.discountamt)) END AS abs FROM c_allocationline al, c_allocationhdr ah
+ WHERE (((al.c_payment_id = pay.c_payment_id) AND (al.c_allocationhdr_id = ah.c_allocationhdr_id)) AND (ah.docstatus <>
+ALL (ARRAY['RE'::bpchar, 'VO'::bpchar])))), (0)::numeric))) AS sum FROM c_payment pay WHERE pay.reversal_id is null AND (((((pay.processed = 'Y'::bpchar) AND
+ (pay.c_bpartner_id = $P{C_BPartner_ID})) AND ((trunc(getdate(), 'MM/DD/YYYY'::character varying) - trunc((pay.datetrx)::timestamp
+ with time zone, 'MM/DD/YYYY'::character varying)) <= 30)) AND (pay.docstatus = ANY (ARRAY['CO'::bpchar, 'CL'::bpchar,
+'RE'::bpchar]))) AND (COALESCE(pay.payamt, (0)::numeric) <> (0)::numeric))), (0)::numeric)) AS currentdays]]>
+	</queryString>
+	<field name="ninety" class="java.math.BigDecimal"/>
+	<field name="sixty" class="java.math.BigDecimal"/>
+	<field name="thirty" class="java.math.BigDecimal"/>
+	<field name="currentdays" class="java.math.BigDecimal"/>
+	<background>
+		<band height="2" splitType="Stretch"/>
+	</background>
+	<title>
+		<band splitType="Stretch"/>
+	</title>
+	<pageHeader>
+		<band splitType="Stretch"/>
+	</pageHeader>
+	<columnHeader>
+		<band height="18" splitType="Stretch">
+			<rectangle radius="0">
+				<reportElement uuid="86d536d0-ad5f-432b-900d-476b4bb7aec1" key="element-22" mode="Opaque" x="0" y="1" width="532" height="17" forecolor="#000000" backcolor="#999999"/>
+				<graphicElement>
+					<pen lineWidth="0.5" lineStyle="Solid"/>
+				</graphicElement>
+			</rectangle>
+			<staticText>
+				<reportElement uuid="4a4c07e3-71fa-45a2-b162-8e6655384925" key="element-90" mode="Opaque" x="0" y="1" width="133" height="16" forecolor="#003333" backcolor="#FFFFFF"/>
+				<box leftPadding="1" rightPadding="1">
+					<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font fontName="SansSerif" size="10"/>
+				</textElement>
+				<text><![CDATA[> 90 DAYS]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="3b09652b-e153-457e-b852-36c976197468" key="element-90" mode="Opaque" x="133" y="1" width="133" height="16" forecolor="#003333" backcolor="#FFFFFF"/>
+				<box leftPadding="1" rightPadding="1">
+					<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right">
+					<font fontName="SansSerif" size="10"/>
+				</textElement>
+				<text><![CDATA[> 60 DAYS]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="0b63a380-38d8-4043-93d6-6daf38b603f1" key="element-90" mode="Opaque" x="266" y="1" width="133" height="16" forecolor="#003333" backcolor="#FFFFFF"/>
+				<box leftPadding="1" rightPadding="1">
+					<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right">
+					<font fontName="SansSerif" size="10"/>
+				</textElement>
+				<text><![CDATA[> 30 DAYS]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="226cc8ec-28c1-48c0-a9f1-edaeb27d42ca" key="element-90" mode="Opaque" x="399" y="1" width="133" height="16" forecolor="#003333" backcolor="#FFFFFF"/>
+				<box leftPadding="1" rightPadding="1">
+					<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right">
+					<font fontName="SansSerif" size="10"/>
+				</textElement>
+				<text><![CDATA[CURRENT DAYS]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="19" splitType="Stretch">
+			<line>
+				<reportElement uuid="6f54f991-80b4-451a-a76d-139773ba8c04" key="line" positionType="FixRelativeToBottom" x="0" y="17" width="532" height="1" forecolor="#808080"/>
+				<graphicElement>
+					<pen lineWidth="0.5" lineStyle="Solid"/>
+				</graphicElement>
+			</line>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+				<reportElement uuid="05488e44-9984-49c1-a58f-b598fb14e17f" key="textField" x="0" y="1" width="133" height="16"/>
+				<box leftPadding="1" rightPadding="1">
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font fontName="SansSerif" size="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{ninety}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+				<reportElement uuid="60ce8e0b-7649-4b6c-9640-f2ed51eaa3a9" key="textField" x="133" y="1" width="133" height="16"/>
+				<box leftPadding="2" rightPadding="2">
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right">
+					<font fontName="SansSerif" size="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{sixty}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+				<reportElement uuid="0447f839-3de8-4ae0-8fbd-3ff7ac2224ff" key="textField" x="266" y="1" width="133" height="16"/>
+				<box leftPadding="2" rightPadding="2">
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right">
+					<font fontName="SansSerif" size="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{thirty}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+				<reportElement uuid="81069eca-5c43-432b-a793-d1e1474c36df" key="textField" x="399" y="1" width="133" height="16"/>
+				<box leftPadding="2" rightPadding="2">
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right">
+					<font fontName="SansSerif" size="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{currentdays}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band splitType="Stretch"/>
+	</pageFooter>
+	<summary>
+		<band splitType="Stretch"/>
+	</summary>
+</jasperReport>

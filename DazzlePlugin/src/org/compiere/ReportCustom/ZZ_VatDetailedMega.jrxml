@@ -1,0 +1,278 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="ZZ_VatDetailedMega" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="0" bottomMargin="20" uuid="c12e5227-8c2f-455c-acbe-24446fbc8c9b">
+	<property name="ireport.zoom" value="1.610510000000001"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="12"/>
+	<import value="net.sf.jasperreports.engine.*"/>
+	<import value="java.util.*"/>
+	<import value="net.sf.jasperreports.engine.data.*"/>
+	<parameter name="SUBREPORT_DIR" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA["/A/workspace/nTier/dazzle/dazzle2/dazzleDevelopment/DazzlePos/src/org/compiere/ReportCustom/"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="AD_Client_ID" class="java.lang.Integer" isForPrompting="false">
+		<parameterDescription><![CDATA[]]></parameterDescription>
+		<defaultValueExpression><![CDATA[1000001]]></defaultValueExpression>
+	</parameter>
+	<parameter name="AD_Org_ID" class="java.lang.Integer" isForPrompting="false">
+		<parameterDescription><![CDATA[]]></parameterDescription>
+		<defaultValueExpression><![CDATA[0]]></defaultValueExpression>
+	</parameter>
+	<parameter name="DateAcctFrom" class="java.util.Date">
+		<parameterDescription><![CDATA[Start Date]]></parameterDescription>
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="DateAcctTo" class="java.util.Date">
+		<parameterDescription><![CDATA[End Date]]></parameterDescription>
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="image_file_name" class="java.lang.String" isForPrompting="false">
+		<parameterDescription><![CDATA[Company Logo]]></parameterDescription>
+		<defaultValueExpression><![CDATA["/A/workspace/nTier/dazzle/project/various/logo.png"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="BASE_PATH" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA["/A/workspace/nTier/dazzle/dazzle2/dazzleDevelopment/DazzlePos/src/org/compiere/ReportCustom/"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="AD_Branch_Org_ID" class="java.lang.Integer">
+		<defaultValueExpression><![CDATA[1000003]]></defaultValueExpression>
+	</parameter>
+	<queryString language="SQL">
+		<![CDATA[Select * from Dual
+Limit 1]]>
+	</queryString>
+	<field name="dummy" class="java.lang.String"/>
+	<group name="dummy">
+		<groupExpression><![CDATA[$F{dummy}]]></groupExpression>
+	</group>
+	<group name="AccsReceivableType">
+		<groupExpression><![CDATA[$F{dummy}]]></groupExpression>
+		<groupHeader>
+			<band height="15">
+				<subreport>
+					<reportElement x="1" y="1" width="554" height="14" uuid="0e2ea82d-0714-46fc-90ba-e051cda3c977"/>
+					<subreportParameter name="SUBREPORT_DIR">
+						<subreportParameterExpression><![CDATA[$P{SUBREPORT_DIR}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="DateAcctFrom">
+						<subreportParameterExpression><![CDATA[$P{DateAcctFrom}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="AD_Client_ID">
+						<subreportParameterExpression><![CDATA[new BigDecimal($P{AD_Client_ID}.intValue())]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="AD_Org_ID">
+						<subreportParameterExpression><![CDATA[new BigDecimal($P{AD_Org_ID}.intValue())]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="DateAcctTo">
+						<subreportParameterExpression><![CDATA[$P{DateAcctTo}]]></subreportParameterExpression>
+					</subreportParameter>
+					<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					<subreportExpression><![CDATA[$P{BASE_PATH} + "ZZ_VatDetailedMegaAccsRec.jasper"]]></subreportExpression>
+				</subreport>
+			</band>
+		</groupHeader>
+		<groupFooter>
+			<band/>
+		</groupFooter>
+	</group>
+	<group name="AccsPayableType">
+		<groupExpression><![CDATA[$F{dummy}]]></groupExpression>
+		<groupHeader>
+			<band height="15">
+				<subreport>
+					<reportElement x="0" y="1" width="555" height="14" uuid="df8ba404-de01-4b81-b06a-048d3204d589"/>
+					<subreportParameter name="SUBREPORT_DIR">
+						<subreportParameterExpression><![CDATA[$P{SUBREPORT_DIR}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="DateAcctFrom">
+						<subreportParameterExpression><![CDATA[$P{DateAcctFrom}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="AD_Client_ID">
+						<subreportParameterExpression><![CDATA[new BigDecimal($P{AD_Client_ID}.intValue())]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="AD_Org_ID">
+						<subreportParameterExpression><![CDATA[new BigDecimal($P{AD_Org_ID}.intValue())]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="DateAcctTo">
+						<subreportParameterExpression><![CDATA[$P{DateAcctTo}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="image_file_name">
+						<subreportParameterExpression><![CDATA[$P{image_file_name}]]></subreportParameterExpression>
+					</subreportParameter>
+					<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					<subreportExpression><![CDATA[$P{BASE_PATH} + "ZZ_VatDetailedMegaAccsPay.jasper"]]></subreportExpression>
+				</subreport>
+			</band>
+		</groupHeader>
+		<groupFooter>
+			<band/>
+		</groupFooter>
+	</group>
+	<group name="VatSummary">
+		<groupExpression><![CDATA[$F{dummy}]]></groupExpression>
+		<groupHeader>
+			<band height="19">
+				<subreport>
+					<reportElement x="0" y="0" width="555" height="19" uuid="3e4f4089-c755-4397-87ff-ab292563a2c3"/>
+					<subreportParameter name="SUBREPORT_DIR">
+						<subreportParameterExpression><![CDATA[$P{SUBREPORT_DIR}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="DateAcctFrom">
+						<subreportParameterExpression><![CDATA[$P{DateAcctFrom}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="AD_Client_ID">
+						<subreportParameterExpression><![CDATA[new BigDecimal($P{AD_Client_ID}.intValue())]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="AD_Org_ID">
+						<subreportParameterExpression><![CDATA[new BigDecimal($P{AD_Org_ID}.intValue())]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="DateAcctTo">
+						<subreportParameterExpression><![CDATA[$P{DateAcctTo}]]></subreportParameterExpression>
+					</subreportParameter>
+					<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					<subreportExpression><![CDATA[$P{BASE_PATH} + "ZZ_VatDetailedMegaVatSummaryTpes.jasper"]]></subreportExpression>
+				</subreport>
+			</band>
+		</groupHeader>
+		<groupFooter>
+			<band/>
+		</groupFooter>
+	</group>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="20" splitType="Stretch">
+			<subreport>
+				<reportElement x="0" y="3" width="555" height="16" uuid="bc7675dc-eb0e-4b2c-8861-9a7884c6efc8"/>
+				<subreportParameter name="AD_Client_ID">
+					<subreportParameterExpression><![CDATA[new BigDecimal($P{AD_Client_ID}.intValue())]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="BASE_PATH">
+					<subreportParameterExpression><![CDATA[$P{BASE_PATH}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="AD_Org_ID">
+					<subreportParameterExpression><![CDATA[($P{AD_Org_ID}.intValue() == 0) ? new BigDecimal($P{AD_Branch_Org_ID}.intValue()) : new BigDecimal($P{AD_Org_ID}.intValue())]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="image_file_name">
+					<subreportParameterExpression><![CDATA[$P{image_file_name}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[$P{BASE_PATH} + "Header Subreport2.jasper"]]></subreportExpression>
+			</subreport>
+		</band>
+	</title>
+	<pageHeader>
+		<band splitType="Stretch"/>
+	</pageHeader>
+	<columnHeader>
+		<band height="52" splitType="Stretch">
+			<staticText>
+				<reportElement key="staticText-6" x="151" y="31" width="57" height="18" uuid="1d5b6b80-accc-4f84-ba59-67df7fa0c7a2"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font fontName="DejaVu Sans" size="12" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Period:]]></text>
+			</staticText>
+			<textField pattern="dd/MM/yyyy" isBlankWhenNull="false">
+				<reportElement key="textField" x="214" y="31" width="76" height="18" uuid="a171ffcc-6ac0-47f8-9f95-114535fb0a67"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font fontName="DejaVu Sans" size="12" isBold="false" pdfFontName="Helvetica"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{DateAcctFrom}]]></textFieldExpression>
+			</textField>
+			<textField pattern="dd/MM/yyyy" isBlankWhenNull="false">
+				<reportElement key="textField" x="317" y="31" width="75" height="18" uuid="3342f7f0-362d-4e22-97c9-e483b25989e5"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font fontName="DejaVu Sans" size="12" isBold="false" pdfFontName="Helvetica"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{DateAcctTo}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement key="staticText-7" x="293" y="31" width="23" height="18" uuid="bea7fa90-a472-412b-8e15-0bd8062cd2a5"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font fontName="DejaVu Sans" size="12" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[To]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-1" x="165" y="5" width="221" height="20" uuid="a826d4ba-7f73-4084-9ebc-685ce46c6352"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center">
+					<font fontName="DejaVu Sans" size="16" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[VAT DETAILED REPORT]]></text>
+			</staticText>
+			<line>
+				<reportElement x="1" y="49" width="553" height="1" uuid="a36dade3-d337-44f3-9923-f49a778c63f8"/>
+			</line>
+		</band>
+	</columnHeader>
+	<detail>
+		<band splitType="Stretch"/>
+		<band/>
+	</detail>
+	<columnFooter>
+		<band height="17" splitType="Stretch">
+			<textField pattern="dd/MM/yyyy h.mm a" isBlankWhenNull="false">
+				<reportElement key="textField-1" x="450" y="0" width="104" height="16" uuid="ad83ed4f-4ede-4d22-85ea-42d660fbf920"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font fontName="DejaVu Sans"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement key="staticText-4" x="354" y="0" width="96" height="16" uuid="baead28d-ae10-4f2e-9d56-d3269fbac2f4"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font fontName="DejaVu Sans" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Date Report Run:]]></text>
+			</staticText>
+		</band>
+	</columnFooter>
+	<pageFooter>
+		<band splitType="Stretch"/>
+	</pageFooter>
+	<summary>
+		<band splitType="Stretch"/>
+	</summary>
+</jasperReport>

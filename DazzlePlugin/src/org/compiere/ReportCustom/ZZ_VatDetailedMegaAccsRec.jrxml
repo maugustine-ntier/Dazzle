@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="ZZ_VatDetailedMegaAccsRec" pageWidth="555" pageHeight="802" columnWidth="555" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="421bc8af-304f-4571-8c97-dbdf258cbca5">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<import value="net.sf.jasperreports.engine.*"/>
+	<import value="java.util.*"/>
+	<import value="net.sf.jasperreports.engine.data.*"/>
+	<parameter name="AD_Client_ID" class="java.math.BigDecimal">
+		<parameterDescription><![CDATA[Client]]></parameterDescription>
+		<defaultValueExpression><![CDATA[new java.math.BigDecimal("0")]]></defaultValueExpression>
+	</parameter>
+	<parameter name="AD_Org_ID" class="java.math.BigDecimal">
+		<parameterDescription><![CDATA[Branch / Organization]]></parameterDescription>
+		<defaultValueExpression><![CDATA[new java.math.BigDecimal("0")]]></defaultValueExpression>
+	</parameter>
+	<parameter name="Tax_ID" class="java.math.BigDecimal">
+		<parameterDescription><![CDATA[Tax Type]]></parameterDescription>
+		<defaultValueExpression><![CDATA[new java.math.BigDecimal("0")]]></defaultValueExpression>
+	</parameter>
+	<parameter name="DateAcctFrom" class="java.util.Date"/>
+	<parameter name="DateAcctTo" class="java.util.Date"/>
+	<parameter name="image_file_name" class="java.lang.String" isForPrompting="false"/>
+	<parameter name="SUBREPORT_DIR" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA[""]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[select tax.C_tax_id, TAX.name, TAX.rate from c_tax tax
+where tax.ad_client_id = $P{AD_Client_ID}
+and tax.isactive='Y']]>
+	</queryString>
+	<field name="c_tax_id" class="java.math.BigDecimal"/>
+	<field name="name" class="java.lang.String"/>
+	<field name="rate" class="java.math.BigDecimal"/>
+	<group name="c_tax_id">
+		<groupExpression><![CDATA[$F{c_tax_id}]]></groupExpression>
+	</group>
+	<group name="name">
+		<groupExpression><![CDATA[$F{name}]]></groupExpression>
+	</group>
+	<group name="AccsReceivableType">
+		<groupExpression><![CDATA[$F{c_tax_id}]]></groupExpression>
+		<groupHeader>
+			<band height="15">
+				<subreport>
+					<reportElement stretchType="RelativeToTallestObject" x="0" y="1" width="555" height="14" uuid="cf411e43-5c1a-4d87-a79b-821af8e07605"/>
+					<subreportParameter name="SUBREPORT_DIR">
+						<subreportParameterExpression><![CDATA[$P{SUBREPORT_DIR}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="DateAcctFrom">
+						<subreportParameterExpression><![CDATA[$P{DateAcctFrom}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="AD_Client_ID">
+						<subreportParameterExpression><![CDATA[$P{AD_Client_ID}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="AD_Org_ID">
+						<subreportParameterExpression><![CDATA[$P{AD_Org_ID}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="DateAcctTo">
+						<subreportParameterExpression><![CDATA[$P{DateAcctTo}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="Tax_ID">
+						<subreportParameterExpression><![CDATA[$F{c_tax_id}]]></subreportParameterExpression>
+					</subreportParameter>
+					<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "ZZ_VatDetailedMegaAccsRecTypes.jasper"]]></subreportExpression>
+				</subreport>
+			</band>
+		</groupHeader>
+		<groupFooter>
+			<band/>
+		</groupFooter>
+	</group>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="1" splitType="Stretch"/>
+	</title>
+	<pageHeader>
+		<band splitType="Stretch"/>
+	</pageHeader>
+	<columnHeader>
+		<band splitType="Stretch"/>
+	</columnHeader>
+	<detail>
+		<band splitType="Stretch"/>
+	</detail>
+	<columnFooter>
+		<band splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band splitType="Stretch"/>
+	</pageFooter>
+	<summary>
+		<band splitType="Stretch"/>
+	</summary>
+</jasperReport>

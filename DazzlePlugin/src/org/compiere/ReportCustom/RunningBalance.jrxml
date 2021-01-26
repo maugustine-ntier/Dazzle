@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"  ?>
+<!-- Created with iReport - A designer for JasperReports -->
+<!DOCTYPE jasperReport PUBLIC "//JasperReports//DTD Report Design//EN" "http://jasperreports.sourceforge.net/dtds/jasperreport.dtd">
+<jasperReport
+		 name="RunningBalance"
+		 columnCount="1"
+		 printOrder="Vertical"
+		 orientation="Portrait"
+		 pageWidth="535"
+		 pageHeight="842"
+		 columnWidth="535"
+		 columnSpacing="0"
+		 leftMargin="0"
+		 rightMargin="0"
+		 topMargin="0"
+		 bottomMargin="0"
+		 whenNoDataType="NoPages"
+		 isTitleNewPage="false"
+		 isSummaryNewPage="false">
+	<property name="ireport.scriptlethandling" value="0" />
+	<property name="ireport.encoding" value="UTF-8" />
+	<import value="java.util.*" />
+	<import value="net.sf.jasperreports.engine.*" />
+	<import value="net.sf.jasperreports.engine.data.*" />
+
+	<parameter name="C_BPartner_ID" isForPrompting="true" class="java.math.BigDecimal"/>
+	<parameter name="DateAcctFrom" isForPrompting="true" class="java.util.Date"/>
+	<parameter name="DateAcctTo" isForPrompting="true" class="java.util.Date"/>
+	<queryString><![CDATA[select ( 
+           ( Select (
+                (select COALESCE(SUM(iar.GRANDTOTAL),0) as ARInvoices from C_INVOICE iar  where iar.C_DOCTYPE_ID =1000002
+                AND iar.PROCESSED='Y' AND iar.C_BPARTNER_ID =$P{C_BPartner_ID}
+                AND iar.DATEINVOICED between $P{DateAcctFrom} and $P{DateAcctTo})-
+                (select COALESCE(SUM(iap.GRANDTOTAL),0) as APInvoices from C_INVOICE iap  where iap.C_DOCTYPE_ID =1000005
+                AND iap.PROCESSED='Y' AND iap.C_BPARTNER_ID =$P{C_BPartner_ID}
+                 AND iap.DATEINVOICED between $P{DateAcctFrom} and $P{DateAcctTo})
+                ) as Invoices from dual) +
+
+           ( Select (
+             (select COALESCE(SUM(pap.PAYAMT),0) as APPayments from C_PAYMENT pap  where pap.C_DOCTYPE_ID =1000009
+              AND pap.PROCESSED='Y' AND pap.C_BPARTNER_ID =$P{C_BPartner_ID}
+              AND pap.DATETRX between $P{DateAcctFrom} and $P{DateAcctTo})-
+              (select COALESCE(SUM(par.PAYAMT),0) as ARPayments from C_PAYMENT  par  where par.C_DOCTYPE_ID =1000008
+              AND par.PROCESSED='Y' AND  par.C_BPARTNER_ID =$P{C_BPartner_ID}
+              AND par.DATETRX between $P{DateAcctFrom} and $P{DateAcctTo})
+              ) as Payments from dual)
+     ) as RunningBal from dual]]></queryString>
+
+	<field name="RUNNINGBAL" class="java.math.BigDecimal"/>
+
+		<background>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</background>
+		<title>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</title>
+		<pageHeader>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</pageHeader>
+		<columnHeader>
+			<band height="20"  isSplitAllowed="true" >
+				<rectangle radius="0" >
+					<reportElement
+						mode="Opaque"
+						x="1"
+						y="1"
+						width="534"
+						height="17"
+						forecolor="#000000"
+						backcolor="#999999"
+						key="element-22"/>
+					<graphicElement stretchType="NoStretch" pen="Thin"/>
+				</rectangle>
+				<textField isStretchWithOverflow="true" pattern="" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						mode="Opaque"
+						x="283"
+						y="1"
+						width="250"
+						height="15"
+						forecolor="#003333"
+						backcolor="#00CCFF"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" leftPadding="2" rightBorder="None" rightBorderColor="#000000" rightPadding="2" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Right">
+						<font fontName="Times-Roman" pdfFontName="Helvetica-Bold" size="12" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.math.BigDecimal"><![CDATA[$F{RUNNINGBAL}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement
+						mode="Opaque"
+						x="3"
+						y="0"
+						width="281"
+						height="16"
+						forecolor="#003333"
+						backcolor="#00CCFF"
+						key="element-90"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" leftPadding="2" rightBorder="None" rightBorderColor="#000000" rightPadding="2" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font fontName="" pdfFontName="Helvetica-Bold" size="12" isBold="true"/>
+					</textElement>
+				<text><![CDATA[RUNNING BALANCE]]></text>
+				</staticText>
+			</band>
+		</columnHeader>
+		<detail>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</detail>
+		<columnFooter>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</columnFooter>
+		<pageFooter>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</pageFooter>
+		<summary>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</summary>
+</jasperReport>

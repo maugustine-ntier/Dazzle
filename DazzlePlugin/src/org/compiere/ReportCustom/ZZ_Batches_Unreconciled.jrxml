@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="ZZ_BankState_Lines_Recon" pageWidth="595" pageHeight="842" whenNoDataType="AllSectionsNoDetail" columnWidth="535" leftMargin="30" rightMargin="30" topMargin="20" bottomMargin="20" uuid="0d6201dd-6462-488a-9718-0f77ff3e271d">
+	<property name="ireport.scriptlethandling" value="0"/>
+	<property name="ireport.encoding" value="UTF-8"/>
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<import value="net.sf.jasperreports.engine.*"/>
+	<import value="java.util.*"/>
+	<import value="net.sf.jasperreports.engine.data.*"/>
+	<parameter name="image_file_name" class="java.lang.String" isForPrompting="false"/>
+	<parameter name="AD_Client_ID" class="java.lang.Integer">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="BASE_PATH" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA[""]]></defaultValueExpression>
+	</parameter>
+	<parameter name="SUBREPORT_DIR" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA[System.getProperty("java.io.tmpdir") + System.getProperty("file.separator")]]></defaultValueExpression>
+	</parameter>
+	<parameter name="AD_Org_ID" class="java.lang.Integer"/>
+	<parameter name="STARTDATE" class="java.util.Date"/>
+	<parameter name="ENDDATE" class="java.util.Date"/>
+	<queryString>
+		<![CDATA[select o.name as orgname,db.documentno,db.datedeposit, db.datedoc , db.description, db.docstatus, db.depositamt
+from adempiere.c_depositbatch db , adempiere.ad_org o
+where
+db.ad_client_id = $P{AD_Client_ID} and
+db.ad_org_id = $P{AD_Org_ID} and
+db.datedoc >= $P{STARTDATE} and
+db.datedoc <= $P{ENDDATE}
+and not exists (select 'x' from adempiere.c_bankstatementline bsl
+where bsl.c_depositbatch_id = db.c_depositbatch_id)
+and db.ad_org_id = o.ad_org_id]]>
+	</queryString>
+	<field name="orgname" class="java.lang.String"/>
+	<field name="documentno" class="java.lang.String"/>
+	<field name="datedeposit" class="java.sql.Timestamp"/>
+	<field name="datedoc" class="java.sql.Timestamp"/>
+	<field name="description" class="java.lang.String"/>
+	<field name="docstatus" class="java.lang.String"/>
+	<field name="depositamt" class="java.math.BigDecimal"/>
+	<variable name="vatIn" class="java.math.BigDecimal" calculation="Sum"/>
+	<variable name="vatout" class="java.lang.String" calculation="Sum"/>
+	<variable name="difference" class="java.lang.String" calculation="Sum"/>
+	<group name="totals">
+		<groupExpression><![CDATA[]]></groupExpression>
+		<groupHeader>
+			<band splitType="Stretch"/>
+		</groupHeader>
+		<groupFooter>
+			<band height="16" splitType="Stretch"/>
+		</groupFooter>
+	</group>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="24" splitType="Stretch">
+			<line>
+				<reportElement uuid="ce34b918-c612-421d-9ce9-e469a68faba4" key="line-3" positionType="Float" x="1" y="22" width="531" height="1"/>
+			</line>
+			<subreport isUsingCache="true">
+				<reportElement uuid="f633fa86-7b4e-42d2-9e5c-b3a3ab1d2908" key="subreport-4" x="2" y="0" width="533" height="18"/>
+				<subreportParameter name="AD_ORG_ID">
+					<subreportParameterExpression><![CDATA[new BigDecimal($P{AD_Org_ID}.intValue())]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="AD_CLIENT_ID">
+					<subreportParameterExpression><![CDATA[new BigDecimal($P{AD_Client_ID}.intValue())]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="image_file_name">
+					<subreportParameterExpression><![CDATA[$P{image_file_name}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "Header Subreport.jasper"]]></subreportExpression>
+			</subreport>
+		</band>
+	</title>
+	<pageHeader>
+		<band height="53" splitType="Stretch">
+			<line>
+				<reportElement uuid="5a07c9a7-7027-4072-a1d1-4fbafd8db840" key="line-1" x="1" y="21" width="532" height="1"/>
+			</line>
+			<textField pattern="dd/MM/yyyy">
+				<reportElement uuid="1a371b35-a5e2-4b93-a803-8f83135cc938" x="277" y="33" width="71" height="20"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[$P{STARTDATE}]]></textFieldExpression>
+			</textField>
+			<textField pattern="dd/MM/yyyy">
+				<reportElement uuid="68a2d5e3-1ca0-42cf-be11-cf340e4c4395" x="435" y="33" width="100" height="20"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[$P{ENDDATE}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="b183cf00-41a9-49ec-bedd-b4e5466393c4" x="204" y="33" width="73" height="20"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Start Date]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="38f3591b-598f-46c6-92ff-0c43d822c732" x="358" y="33" width="77" height="20"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[End Date]]></text>
+			</staticText>
+			<textField>
+				<reportElement uuid="56433aa9-8092-48f9-a882-5bc8b6500b0d" x="3" y="0" width="528" height="20"/>
+				<textElement textAlignment="Center">
+					<font size="16" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Unreconcilled Payment Batches : " + $F{orgname}]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band height="34" splitType="Stretch">
+			<staticText>
+				<reportElement uuid="0a2e7c91-c1e6-4507-b73f-923127af2480" x="2" y="0" width="63" height="34"/>
+				<textElement/>
+				<text><![CDATA[Document No]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="756172e0-3ef8-4ec2-a90f-e4af2ef432a3" x="65" y="0" width="64" height="34"/>
+				<textElement/>
+				<text><![CDATA[Date Deposit]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="38e6bab7-56d2-40d4-94da-d3ef9fae535e" x="129" y="0" width="64" height="34"/>
+				<textElement/>
+				<text><![CDATA[Document Date]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="7b463ab6-b0ed-48c6-aad8-8399fdb79c06" x="193" y="0" width="184" height="20"/>
+				<textElement/>
+				<text><![CDATA[Description]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="c4d044be-a251-4cba-a232-139b022af51c" x="380" y="0" width="76" height="34"/>
+				<textElement/>
+				<text><![CDATA[Document Status]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="17f9b300-d48a-482f-9d8e-7b47809a6654" x="456" y="0" width="76" height="34"/>
+				<textElement textAlignment="Right"/>
+				<text><![CDATA[Deposit Amt]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="20" splitType="Stretch">
+			<textField>
+				<reportElement uuid="da63ef32-3b69-479f-9330-7499f028dbb4" x="2" y="0" width="63" height="20"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[$F{documentno}]]></textFieldExpression>
+			</textField>
+			<textField pattern="dd/MM/yyyy">
+				<reportElement uuid="d0abd5a8-d22b-4903-b1d5-cbb31f43baf4" x="65" y="0" width="64" height="20"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[$F{datedeposit}]]></textFieldExpression>
+			</textField>
+			<textField pattern="dd/MM/yyyy">
+				<reportElement uuid="3f159fc7-5752-4cbd-8ad7-ad076ffc200a" x="129" y="0" width="64" height="20"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[$F{datedoc}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement uuid="a3147d6d-4e11-4ac7-a2d0-de3f56ee595b" x="193" y="0" width="184" height="20"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[$F{description}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="c6444d91-4bf3-4cea-b8cd-437b264bb52d" x="380" y="0" width="76" height="20"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[$F{docstatus}]]></textFieldExpression>
+			</textField>
+			<textField pattern="###0.00;-###0.00">
+				<reportElement uuid="6666b42c-b821-45f0-9073-fc604a07b8b4" x="456" y="0" width="76" height="20"/>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression><![CDATA[$F{depositamt}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band splitType="Stretch"/>
+	</pageFooter>
+	<summary>
+		<band splitType="Stretch"/>
+	</summary>
+</jasperReport>

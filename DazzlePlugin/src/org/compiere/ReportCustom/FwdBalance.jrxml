@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="FwdBalance" pageWidth="102" pageHeight="595" columnWidth="102" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="be79723c-77c7-45a9-9944-0e79cb1daaee">
+	<property name="ireport.scriptlethandling" value="0"/>
+	<property name="ireport.encoding" value="UTF-8"/>
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<import value="net.sf.jasperreports.engine.*"/>
+	<import value="net.sf.jasperreports.engine.data.*"/>
+	<import value="java.util.*"/>
+	<parameter name="DateAcctFrom" class="java.util.Date">
+		<defaultValueExpression><![CDATA[new Date(100,0,1)]]></defaultValueExpression>
+	</parameter>
+	<parameter name="C_ElementValue_ID" class="java.lang.Double" isForPrompting="false"/>
+	<parameter name="AD_OrgPrint_ID" class="java.lang.Integer">
+		<defaultValueExpression><![CDATA[0]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[select coalesce(CASE WHEN ev.accounttype='R'
+            THEN 0.00
+	    WHEN ev.accounttype='E'
+            THEN 0.00
+            WHEN (sum(COALESCE(fa.AMTACCTDR,0)) - sum(COALESCE(fa.AMTACCTCR,0))) is null
+	    THEN 0.00
+	    WHEN (sum(fa.AMTACCTDR) - sum(fa.AMTACCTCR)) is null
+	    THEN 0.00
+	    ELSE (sum(COALESCE(fa.AMTACCTDR,0)) - sum(COALESCE(fa.AMTACCTCR,0)))
+            END,0) as AccountBalance
+FROM  C_ELEMENTVALUE ev
+LEFT OUTER JOIN FACT_ACCT fa ON fa.Account_ID = ev.C_ELEMENTVALUE_ID
+		and (fa.DATEACCT is null OR fa.DATEACCT < $P{DateAcctFrom} )
+where ev.C_ELEMENTVALUE_ID = $P{C_ElementValue_ID} and
+($P{AD_OrgPrint_ID}=0 OR fa.AD_ORG_ID=$P{AD_OrgPrint_ID})
+Group by ev.accounttype]]>
+	</queryString>
+	<field name="accountbalance" class="java.lang.Double"/>
+	<variable name="accountbalance" class="java.lang.Double" incrementType="Report">
+		<variableExpression><![CDATA[$F{accountbalance} == null ? new Double("0") : $F{accountbalance}]]></variableExpression>
+	</variable>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band splitType="Stretch"/>
+	</title>
+	<pageHeader>
+		<band splitType="Stretch"/>
+	</pageHeader>
+	<columnHeader>
+		<band height="18" splitType="Stretch">
+			<textField pattern="#,##0.00" isBlankWhenNull="false">
+				<reportElement key="textField" x="1" y="0" width="96" height="17" forecolor="#000000" uuid="9ec45e8a-e7be-499b-a5e9-75171157feea"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right">
+					<font size="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Helvetica" isPdfEmbedded="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[($F{accountbalance} == null) ? new Double("0.00") : $F{accountbalance}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="" isBlankWhenNull="true">
+				<reportElement key="textField-1" mode="Opaque" x="97" y="5" width="0" height="10" forecolor="#FFFFFF" backcolor="#FFFFFF" uuid="a6fc1cd7-661b-43f9-94e7-f68ffa3593c7"/>
+				<box leftPadding="2" rightPadding="2">
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right">
+					<font fontName="Times-Roman" size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[]]></textFieldExpression>
+			</textField>
+		</band>
+	</columnHeader>
+	<detail>
+		<band splitType="Stretch"/>
+	</detail>
+	<columnFooter>
+		<band splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band splitType="Stretch"/>
+	</pageFooter>
+	<summary>
+		<band splitType="Stretch"/>
+	</summary>
+</jasperReport>

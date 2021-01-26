@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"  ?>
+<!-- Created with iReport - A designer for JasperReports -->
+<!DOCTYPE jasperReport PUBLIC "//JasperReports//DTD Report Design//EN" "http://jasperreports.sourceforge.net/dtds/jasperreport.dtd">
+<jasperReport
+		 name="TotalCapitalEmployed"
+		 columnCount="1"
+		 printOrder="Vertical"
+		 orientation="Portrait"
+		 pageWidth="352"
+		 pageHeight="595"
+		 columnWidth="352"
+		 columnSpacing="0"
+		 leftMargin="0"
+		 rightMargin="0"
+		 topMargin="0"
+		 bottomMargin="0"
+		 whenNoDataType="NoPages"
+		 isTitleNewPage="false"
+		 isSummaryNewPage="false">
+	<property name="ireport.scriptlethandling" value="0" />
+	<property name="ireport.encoding" value="UTF-8" />
+	<import value="java.util.*" />
+	<import value="net.sf.jasperreports.engine.*" />
+	<import value="net.sf.jasperreports.engine.data.*" />
+
+	<parameter name="AD_Client_ID" isForPrompting="true" class="java.math.BigDecimal"/>
+	<parameter name="DateAcctTo" isForPrompting="true" class="java.util.Date">
+		<defaultValueExpression ><![CDATA[new Date()]]></defaultValueExpression>
+	</parameter>
+	<parameter name="Year" isForPrompting="false" class="java.lang.String">
+		<defaultValueExpression ><![CDATA[(ru.compiere.report.GetYearFromDate.getYear($P{DateAcctTo}))+""]]></defaultValueExpression>
+	</parameter>
+	<queryString><![CDATA[Select(select COALESCE(SUM(COALESCE(fa.amtacctcr,0) - COALESCE(fa.amtacctdr,0)),0)
+from FACT_ACCT fa,C_ElementValue v 
+where fa.AD_CLIENT_ID= $P{AD_Client_ID}
+AND (v.accounttype ='O' OR v.zz_subaccounttype IN ('LL'))
+and (fa.dateacct >= to_date('01/01/1900','dd/mm/yyyy') and fa.dateacct <=$P{DateAcctTo})
+AND fa.ACCOUNT_ID = v.C_ElementValue_id) +
+
+COALESCE((select SUM(COALESCE(fa.amtacctcr,0)) - SUM(COALESCE(fa.amtacctdr,0)) 
+from FACT_ACCT fa,C_ElementValue v,C_Period p,C_year y
+where fa.AD_CLIENT_ID=$P{AD_Client_ID}
+AND v.accounttype IN ('R')
+AND p.c_period_id = fa.c_period_id
+AND y.fiscalyear =$P{Year}
+AND y.c_year_id=p.C_year_id
+and (fa.dateacct >=(select min(p1.startdate) from C_period p1) 
+	and fa.dateacct <= $P{DateAcctTo})
+AND fa.ACCOUNT_ID = v.C_ElementValue_id) +
+
+(select COALESCE(SUM(COALESCE(fa.amtacctcr,0)) - SUM(COALESCE(fa.amtacctdr,0)),0) 
+from FACT_ACCT fa,C_ElementValue v,C_Period p,C_year y
+where fa.AD_CLIENT_ID=$P{AD_Client_ID}
+AND v.accounttype IN ('E')
+AND p.c_period_id = fa.c_period_id
+AND y.fiscalyear =$P{Year}
+AND y.c_year_id=p.C_year_id
+and (fa.dateacct >=(select min(p1.startdate) from C_period p1) 
+	and fa.dateacct <= $P{DateAcctTo})
+AND fa.ACCOUNT_ID = v.C_ElementValue_id),0) as amount]]></queryString>
+
+	<field name="amount" class="java.lang.Double"/>
+
+	<variable name="TOTALAMOUNT" class="java.lang.Double" resetType="Report" calculation="Sum">
+		<variableExpression><![CDATA[$F{amount}]]></variableExpression>
+	</variable>
+	<variable name="DateAcctTo" class="java.math.BigDecimal" resetType="Report" incrementType="Report" calculation="Nothing">
+		<variableExpression><![CDATA[new BigDecimal(ru.compiere.report.GetYearFromDate.getYear($P{DateAcctTo}))]]></variableExpression>
+	</variable>
+		<background>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</background>
+		<title>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</title>
+		<pageHeader>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</pageHeader>
+		<columnHeader>
+			<band height="16"  isSplitAllowed="true" >
+				<staticText>
+					<reportElement
+						mode="Opaque"
+						x="4"
+						y="0"
+						width="231"
+						height="14"
+						forecolor="#000000"
+						backcolor="#99CCFF"
+						key="staticText"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font pdfFontName="Helvetica-Bold" size="10" isBold="true"/>
+					</textElement>
+				<text><![CDATA[TOTAL CAPITAL EMPLOYED]]></text>
+				</staticText>
+				<textField isStretchWithOverflow="false" pattern="#,##0.00" isBlankWhenNull="false" evaluationTime="Auto" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						mode="Opaque"
+						x="234"
+						y="0"
+						width="115"
+						height="14"
+						forecolor="#000000"
+						backcolor="#99CCFF"
+						key="textField-1"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Right">
+						<font pdfFontName="Helvetica-Bold" size="10" isBold="true" isItalic="false" isUnderline="false" isPdfEmbedded ="false" isStrikeThrough="false" />
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$F{amount}]]></textFieldExpression>
+				</textField>
+				<line direction="TopDown">
+					<reportElement
+						x="280"
+						y="13"
+						width="72"
+						height="0"
+						key="line-1"/>
+					<graphicElement stretchType="NoStretch"/>
+				</line>
+				<line direction="TopDown">
+					<reportElement
+						x="280"
+						y="15"
+						width="72"
+						height="0"
+						key="line-2"/>
+					<graphicElement stretchType="NoStretch"/>
+				</line>
+			</band>
+		</columnHeader>
+		<detail>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</detail>
+		<columnFooter>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</columnFooter>
+		<pageFooter>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</pageFooter>
+		<summary>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</summary>
+</jasperReport>

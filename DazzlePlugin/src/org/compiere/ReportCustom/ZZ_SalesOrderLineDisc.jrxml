@@ -1,0 +1,500 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="ZZ_SalesOrderLineDisc" pageWidth="535" pageHeight="842" whenNoDataType="AllSectionsNoDetail" columnWidth="535" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="9ec757e3-e8a6-4648-8282-ca7b77dc8183">
+	<property name="ireport.scriptlethandling" value="0"/>
+	<property name="ireport.encoding" value="UTF-8"/>
+	<property name="ireport.zoom" value="1.7715610000000017"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<import value="net.sf.jasperreports.engine.*"/>
+	<import value="java.util.*"/>
+	<import value="net.sf.jasperreports.engine.data.*"/>
+	<parameter name="RECORD_ID" class="java.lang.Integer">
+		<parameterDescription><![CDATA[THE  C_PAYMENT_ID to get the payment table record]]></parameterDescription>
+		<defaultValueExpression><![CDATA[new java.lang.Integer(0)]]></defaultValueExpression>
+	</parameter>
+	<parameter name="SUBREPORT_DIR" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA["/home/leslie/workspace/adempiere631_6150/base/src/org/compiere/CustomReports/"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="BASE_PATH" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA["/home/leslie/workspace/adempiere631_6150/base/src/org/compiere/CustomReports/"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="AD_Org_ID" class="java.math.BigDecimal" isForPrompting="false">
+		<defaultValueExpression><![CDATA[new java.math.BigDecimal(0)]]></defaultValueExpression>
+	</parameter>
+	<parameter name="AD_Client_ID" class="java.math.BigDecimal" isForPrompting="false">
+		<defaultValueExpression><![CDATA[new java.math.BigDecimal(0)]]></defaultValueExpression>
+	</parameter>
+	<parameter name="image_file_name" class="java.lang.String" isForPrompting="false"/>
+	<queryString>
+		<![CDATA[SELECT  bp.NAME as PARTNERNAME,
+	bp.VALUE as CUSTNO,
+        l.ADDRESS1 as ADD1,
+	l.ADDRESS2 as ADD2,
+	l.ADDRESS3 as ADD3,
+	l.ADDRESS4 as ADD4,
+	l.POSTAL as POSTCODE,
+	l.CITY,
+        o.DOCUMENTNO as DOCUMENTNO,
+	o.DATEPROMISED,
+	o.GRANDTOTAL,
+	O.C_ORDER_ID as ORDERNO,
+        dt.PRINTNAME as DOCTYPEDESC,
+	dt.NAME as DOCTYPE,
+        uom.NAME as UOM,
+        u.Name as SALESREP,
+        ol.QTYORDERED as QTY,
+	ol.PRICELIST as UNITPRICE,
+	ol.LINENETAMT,
+	ol.C_OrderLine_ID,
+(Select taxindicator from c_tax where ad_org_id = o.ad_org_id) as taxname,
+    	l2.ADDRESS1 as orgADD1,
+	l2.ADDRESS2 as orgADD2,
+	l2.CITY as orgADD3,
+	l2.POSTAL as orgADD4,
+	otax.taxamt,
+	--chg.name as charge,
+	CASE WHEN ol.description is not null
+        THEN ol.description
+        ELSE chg.name
+        END  as charge,
+ 	ol.description as linedescription,
+
+       CASE WHEN ol.M_Product_ID is not null
+       THEN prod.description
+               ELSE ol.description
+       END  as LINEDESC,
+prod.name as productname,
+	CASE WHEN ol.M_Product_ID is not null
+        THEN prod.value
+        ELSE 'Charge'
+        END  as code,
+	cur.CurSymbol AS cursymbol,
+	CASE WHEN (pl.istaxincluded = 'Y')
+	THEN true
+        ELSE false END AS  printvat,
+
+        CASE WHEN (pl.istaxincluded = 'N')
+	THEN true
+        ELSE false  END AS  dontprintvat,
+chg.description as chargedescr,
+	CASE WHEN (pl.istaxincluded = 'Y')
+	THEN (otax.taxbaseamt)
+        ELSE o.totallines  END AS totallines,
+	o.grandtotal as grandtotal,
+        ctry.name as country,
+	CASE WHEN (ol.pricelist >  ol.priceactual)
+	THEN (ol.pricelist - ol.priceactual)
+        ELSE 0.00  END AS discount,
+		CASE WHEN (ol.pricelist >  ol.priceactual)
+		THEN (ol.discount) ELSE 0 END as disc
+FROM C_ORDER as o
+   LEFT OUTER JOIN C_ORDERLINE as ol ON o.C_ORDER_ID = ol.C_ORDER_ID
+   LEFT OUTER JOIN C_DOCTYPE as dt ON o.C_DOCTYPETARGET_ID  = dt.C_DOCTYPE_ID
+   JOIN C_BPARTNER as bp ON o.BILL_BPARTNER_ID = bp.C_BPARTNER_ID
+   LEFT OUTER JOIN C_BPARTNER_LOCATION as bpl ON o.BILL_LOCATION_ID = bpl.C_BPARTNER_LOCATION_ID
+   LEFT OUTER JOIN AD_USER as u ON o.SALESREP_ID = u.AD_USER_ID
+   LEFT OUTER JOIN C_CHARGE as chg ON ol.C_CHARGE_ID = chg.C_CHARGE_ID
+   LEFT OUTER JOIN C_LOCATION as l ON bpl.C_LOCATION_ID = l.C_LOCATION_ID
+   LEFT OUTER JOIN C_COUNTRY as ctry ON ctry.c_country_id = l.c_country_id
+   LEFT OUTER JOIN M_PRODUCT as prod ON ol.M_PRODUCT_ID = prod.M_PRODUCT_ID
+   LEFT OUTER JOIN C_UOM  as uom ON ol.c_uom_id=uom.c_uom_id
+   LEFT OUTER JOIN AD_ORG as org ON o.AD_ORG_ID=org.AD_Org_ID
+   LEFT OUTER JOIN AD_ORGINFO as info ON info.AD_ORG_ID=org.AD_Org_ID
+   LEFT OUTER JOIN C_LOCATION as l2 ON info.C_LOCATION_ID = l2.C_LOCATION_ID
+   LEFT OUTER JOIN C_Currency as cur ON cur.C_Currency_ID = o.C_Currency_ID
+   LEFT JOIN c_ordertax as otax ON otax.C_Order_ID = o.C_Order_ID
+
+   JOIN M_PriceList as pl ON pl.m_pricelist_id = o.m_pricelist_id
+WHERE o.C_ORDER_ID=$P{RECORD_ID}
+ORDER BY ol.C_ORDERLINE_ID]]>
+	</queryString>
+	<field name="partnername" class="java.lang.String"/>
+	<field name="custno" class="java.lang.String"/>
+	<field name="add1" class="java.lang.String"/>
+	<field name="add2" class="java.lang.String"/>
+	<field name="add3" class="java.lang.String"/>
+	<field name="add4" class="java.lang.String"/>
+	<field name="postcode" class="java.lang.String"/>
+	<field name="city" class="java.lang.String"/>
+	<field name="documentno" class="java.lang.String"/>
+	<field name="datepromised" class="java.sql.Timestamp"/>
+	<field name="grandtotal" class="java.math.BigDecimal"/>
+	<field name="orderno" class="java.math.BigDecimal"/>
+	<field name="doctypedesc" class="java.lang.String"/>
+	<field name="doctype" class="java.lang.String"/>
+	<field name="uom" class="java.lang.String"/>
+	<field name="salesrep" class="java.lang.String"/>
+	<field name="qty" class="java.math.BigDecimal"/>
+	<field name="unitprice" class="java.math.BigDecimal"/>
+	<field name="linenetamt" class="java.math.BigDecimal"/>
+	<field name="c_orderline_id" class="java.math.BigDecimal"/>
+	<field name="taxname" class="java.lang.String"/>
+	<field name="orgadd1" class="java.lang.String"/>
+	<field name="orgadd2" class="java.lang.String"/>
+	<field name="orgadd3" class="java.lang.String"/>
+	<field name="orgadd4" class="java.lang.String"/>
+	<field name="taxamt" class="java.math.BigDecimal"/>
+	<field name="charge" class="java.lang.String"/>
+	<field name="linedescription" class="java.lang.String"/>
+	<field name="linedesc" class="java.lang.String"/>
+	<field name="productname" class="java.lang.String"/>
+	<field name="code" class="java.lang.String"/>
+	<field name="cursymbol" class="java.lang.String"/>
+	<field name="printvat" class="java.lang.Boolean"/>
+	<field name="dontprintvat" class="java.lang.Boolean"/>
+	<field name="chargedescr" class="java.lang.String"/>
+	<field name="totallines" class="java.math.BigDecimal"/>
+	<field name="country" class="java.lang.String"/>
+	<field name="discount" class="java.math.BigDecimal"/>
+	<field name="disc" class="java.math.BigDecimal"/>
+	<variable name="AMT_DUE" class="java.math.BigDecimal">
+		<variableExpression><![CDATA[($F{grandtotal}.subtract($F{grandtotal}))]]></variableExpression>
+	</variable>
+	<group name="OrderLines">
+		<groupExpression><![CDATA[$F{c_orderline_id}]]></groupExpression>
+		<groupHeader>
+			<band height="20" splitType="Stretch">
+				<textField isBlankWhenNull="false">
+					<reportElement uuid="51aba161-9573-4efb-b0b5-bb84ad6df249" key="textField-17" x="235" y="1" width="39" height="13"/>
+					<box>
+						<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Right">
+						<font fontName="SansSerif" size="8"/>
+					</textElement>
+					<textFieldExpression><![CDATA[($F{qty}!=null)?""+$F{qty}:""]]></textFieldExpression>
+				</textField>
+				<textField isBlankWhenNull="true">
+					<reportElement uuid="23b7d4bf-a0c0-4b04-866d-9ac4283b5363" key="textField-20" x="67" y="1" width="169" height="13"/>
+					<box>
+						<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Left">
+						<font fontName="SansSerif" size="8"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{linedesc}]]></textFieldExpression>
+				</textField>
+				<textField pattern="#,##0.00" isBlankWhenNull="true">
+					<reportElement uuid="b8a80a7a-0263-4d51-9444-27e7d6f14d95" key="textField-23" x="453" y="1" width="75" height="13"/>
+					<box>
+						<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Right">
+						<font fontName="SansSerif" size="8"/>
+					</textElement>
+					<textFieldExpression><![CDATA[($F{linenetamt} !=null)?(new java.text.DecimalFormat("#,##0.00")).format($F{linenetamt}):""]]></textFieldExpression>
+				</textField>
+				<textField pattern="#,##0.00" isBlankWhenNull="false">
+					<reportElement uuid="342fad96-dcd7-4368-864e-c5cd03fe8e76" key="textField-27" x="274" y="1" width="67" height="13"/>
+					<box>
+						<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Right">
+						<font fontName="SansSerif" size="8"/>
+					</textElement>
+					<textFieldExpression><![CDATA[($F{unitprice} !=null)?(new java.text.DecimalFormat("#,##0.00")).format($F{unitprice}):""]]></textFieldExpression>
+				</textField>
+				<textField pattern="#,##0.00" isBlankWhenNull="true">
+					<reportElement uuid="3d98e56e-4aaa-4b95-b270-db54ac2187bf" key="textField-40" x="3" y="1" width="61" height="13"/>
+					<box>
+						<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Left">
+						<font fontName="SansSerif" size="8"/>
+					</textElement>
+					<textFieldExpression><![CDATA[($F{code} !=null)?$F{code}:"Charge"]]></textFieldExpression>
+				</textField>
+				<textField pattern="#,##0.00" isBlankWhenNull="true">
+					<reportElement uuid="3670735a-ee7e-4112-acb0-d8a7c2446f9c" key="textField-41" x="398" y="1" width="52" height="13"/>
+					<box>
+						<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Right">
+						<font fontName="SansSerif" size="8"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{discount}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement uuid="bab44aac-359b-40de-b75d-f1925dec91f2" x="343" y="1" width="51" height="13"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font fontName="SansSerif" size="8" isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{discount}]]></textFieldExpression>
+				</textField>
+			</band>
+		</groupHeader>
+		<groupFooter>
+			<band splitType="Stretch"/>
+		</groupFooter>
+	</group>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="2" splitType="Stretch"/>
+	</title>
+	<pageHeader>
+		<band splitType="Stretch"/>
+	</pageHeader>
+	<columnHeader>
+		<band height="25" splitType="Stretch">
+			<staticText>
+				<reportElement uuid="edc27a63-723b-46ce-af15-34bc17cc688d" key="staticText-20" x="235" y="6" width="38" height="13"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="SansSerif" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Qty]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="9a2c3400-e40b-4f6f-8ce9-159a07ebad95" key="staticText-24" x="67" y="6" width="169" height="13"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="SansSerif" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Description]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="8a5bb264-e408-4bc6-92e3-2f294eeed1e6" key="staticText-25" x="273" y="6" width="67" height="13"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="SansSerif" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Unit Price]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="ecd33e9a-b77b-4759-af77-2db1db6c2ce2" key="staticText-26" x="453" y="6" width="75" height="13"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="SansSerif" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Line Net]]></text>
+			</staticText>
+			<line>
+				<reportElement uuid="dc98f7a6-7cf8-41d4-8522-c7affc08de78" key="line-1" x="3" y="1" width="532" height="1"/>
+			</line>
+			<line>
+				<reportElement uuid="6ba5b3c9-c081-4dde-917d-7c17205c2eaf" key="line-2" x="3" y="20" width="532" height="1"/>
+			</line>
+			<staticText>
+				<reportElement uuid="69202395-84d9-4cc7-8e5e-7810ce5e9213" key="staticText-41" x="3" y="6" width="61" height="13"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="SansSerif" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Code]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="529becce-985f-4b22-9495-54c7de0b5a41" key="staticText-42" x="398" y="6" width="52" height="13"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="SansSerif" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Disc Amt]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="018da348-ad12-403f-85d0-42b1c79eca97" key="staticText-42" x="342" y="6" width="52" height="13"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="SansSerif" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Disc (%)]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band splitType="Stretch"/>
+	</detail>
+	<columnFooter>
+		<band splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band splitType="Stretch"/>
+	</pageFooter>
+	<summary>
+		<band height="85" splitType="Stretch">
+			<line>
+				<reportElement uuid="66b9fa86-eb8e-4a81-918f-d44a050823ac" key="line-3" x="3" y="2" width="532" height="1"/>
+			</line>
+			<textField pattern="#,##0.00" isBlankWhenNull="true">
+				<reportElement uuid="089402e5-921d-429e-a271-c31380c58321" key="textField-37" x="428" y="6" width="105" height="15">
+					<printWhenExpression><![CDATA[$F{dontprintvat}]]></printWhenExpression>
+				</reportElement>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<textFieldExpression><![CDATA[($F{totallines}!=null)?$F{cursymbol} + (new java.text.DecimalFormat("#,##0.00")).format($F{totallines}):""]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00" isBlankWhenNull="true">
+				<reportElement uuid="21a3f99e-1a43-4547-a8c0-3eb1e27c05e5" key="textField-38" x="428" y="22" width="105" height="15">
+					<printWhenExpression><![CDATA[$F{dontprintvat}]]></printWhenExpression>
+				</reportElement>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<textFieldExpression><![CDATA[($F{taxamt}!=null)?$F{cursymbol} + (new java.text.DecimalFormat("#,##0.00")).format($F{taxamt}):""]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00" isBlankWhenNull="true">
+				<reportElement uuid="5e6178a8-ef35-4962-985e-6bc900909719" key="textField-39" x="428" y="38" width="105" height="15"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<textFieldExpression><![CDATA[($F{grandtotal}!=null)?$F{cursymbol} + (new java.text.DecimalFormat("#,##0.00")).format($F{grandtotal}):""]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="b9af0328-5b1e-4fe5-8396-8766d1f1cba6" key="staticText-38" x="337" y="6" width="91" height="15">
+					<printWhenExpression><![CDATA[$F{dontprintvat}]]></printWhenExpression>
+				</reportElement>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="10" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[TOTAL LINES]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="c849bd1a-cad2-4c26-b231-26b918d5b34f" key="staticText-39" x="337" y="22" width="91" height="15">
+					<printWhenExpression><![CDATA[$F{dontprintvat}]]></printWhenExpression>
+				</reportElement>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="10" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[VAT AMOUNT]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="08361951-2ac5-4acf-b3e0-9a998db904dd" key="staticText-40" x="337" y="38" width="91" height="15"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="10" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[GRAND TOTAL]]></text>
+			</staticText>
+			<rectangle>
+				<reportElement uuid="85012171-6d60-4475-8df6-8b873c0c0d32" key="rectangle-1" mode="Transparent" x="332" y="5" width="203" height="53">
+					<printWhenExpression><![CDATA[$F{dontprintvat}]]></printWhenExpression>
+				</reportElement>
+			</rectangle>
+			<textField pattern="#,##0.00" isBlankWhenNull="true">
+				<reportElement uuid="97825c01-10ba-47b6-a3cb-bf5c399fb8a5" key="textField-42" x="426" y="69" width="105" height="15">
+					<printWhenExpression><![CDATA[$F{printvat}]]></printWhenExpression>
+				</reportElement>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="SansSerif" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<textFieldExpression><![CDATA[($F{taxamt}!=null)?$F{cursymbol} + (new java.text.DecimalFormat(" "+"#,##0.00")).format($F{taxamt}):""]]></textFieldExpression>
+			</textField>
+			<rectangle>
+				<reportElement uuid="ea27224e-d25d-497b-b9be-cd54399d5f9f" key="rectangle-2" mode="Transparent" x="332" y="29" width="203" height="30">
+					<printWhenExpression><![CDATA[$F{printvat}]]></printWhenExpression>
+				</reportElement>
+			</rectangle>
+			<textField isBlankWhenNull="true">
+				<reportElement uuid="9475d4bb-38ee-475a-a585-c10d5a94d8a7" key="textField-41" x="333" y="69" width="94" height="15">
+					<printWhenExpression><![CDATA[$F{printvat}]]></printWhenExpression>
+				</reportElement>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="SansSerif" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{taxname} + new java.lang.String(" AMOUNT")]]></textFieldExpression>
+			</textField>
+		</band>
+	</summary>
+</jasperReport>

@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"  ?>
+<!-- Created with iReport - A designer for JasperReports -->
+<!DOCTYPE jasperReport PUBLIC "//JasperReports//DTD Report Design//EN" "http://jasperreports.sourceforge.net/dtds/jasperreport.dtd">
+<jasperReport
+		 name="TotalGainVariancel"
+		 columnCount="1"
+		 printOrder="Vertical"
+		 orientation="Portrait"
+		 pageWidth="113"
+		 pageHeight="595"
+		 columnWidth="113"
+		 columnSpacing="0"
+		 leftMargin="0"
+		 rightMargin="0"
+		 topMargin="0"
+		 bottomMargin="0"
+		 whenNoDataType="NoPages"
+		 isTitleNewPage="false"
+		 isSummaryNewPage="false">
+	<property name="ireport.scriptlethandling" value="0" />
+	<property name="ireport.encoding" value="UTF-8" />
+	<import value="java.util.*" />
+	<import value="net.sf.jasperreports.engine.*" />
+	<import value="net.sf.jasperreports.engine.data.*" />
+
+	<parameter name="DateAcctFrom" isForPrompting="true" class="java.util.Date"/>
+	<parameter name="DateAcctTo" isForPrompting="true" class="java.util.Date"/>
+	<parameter name="AD_Client_ID" isForPrompting="true" class="java.math.BigDecimal"/>
+	<parameter name="AD_Org_ID" isForPrompting="true" class="java.math.BigDecimal"/>
+	<queryString><![CDATA[Select (
+Select((select COALESCE (SUM(bdetail.BUDGETAMT),0) 
+from fact_acct fa,C_ElementValue eval,C_VALIDCOMBINATION vcomb
+LEFT JOIN ZZ_BUDGETDETAIL bdetail ON vcomb.C_VALIDCOMBINATION_ID= bdetail.C_VALIDCOMBINATION_ID
+where fa.account_id=eval.c_elementvalue_id
+AND eval.c_elementvalue_id = vcomb.account_id
+and (fa.dateacct between $P{DateAcctFrom} and $P{DateAcctTo})
+AND eval.accounttype ='R'
+AND vcomb.account_id = fa.account_id
+AND vcomb.AD_Org_ID=fa.AD_Org_ID
+AND eval.c_elementvalue_id = vcomb.account_id
+and ($P{AD_Org_ID}=0 OR fa.AD_ORG_ID=$P{AD_Org_ID}) 
+and fa.AD_CLIENT_ID= $P{AD_Client_ID})
+-
+(select COALESCE(SUM(bdetail.BUDGETAMT),0) 
+from fact_acct fa,C_ElementValue eval,C_VALIDCOMBINATION vcomb
+LEFT JOIN ZZ_BUDGETDETAIL bdetail ON vcomb.C_VALIDCOMBINATION_ID= bdetail.C_VALIDCOMBINATION_ID
+where fa.account_id=eval.c_elementvalue_id 
+and (fa.dateacct between $P{DateAcctFrom} and $P{DateAcctTo})
+and ($P{AD_Org_ID}=0 OR fa.AD_ORG_ID=$P{AD_Org_ID}) 
+and fa.AD_CLIENT_ID= $P{AD_Client_ID}
+AND eval.accounttype ='E'
+AND vcomb.account_id = fa.account_id
+AND eval.c_elementvalue_id = vcomb.account_id
+AND vcomb.AD_Org_ID=fa.AD_Org_ID)) from dual)
+-
+(
+Select((select SUM(fa.amtacctcr) 
+from fact_acct fa,C_ElementValue eval,C_VALIDCOMBINATION vcomb
+where fa.account_id=eval.c_elementvalue_id 
+and (fa.dateacct between $P{DateAcctFrom} and $P{DateAcctTo})
+and ($P{AD_Org_ID}=0 OR fa.AD_ORG_ID=$P{AD_Org_ID}) 
+and fa.AD_CLIENT_ID= $P{AD_Client_ID}
+AND vcomb.AD_Org_ID=fa.AD_Org_ID
+AND vcomb.account_id = fa.account_id
+AND eval.c_elementvalue_id = vcomb.account_id
+AND eval.accounttype = 'R')
+-
+(select SUM(fa.amtacctdr) 
+from fact_acct fa,C_ElementValue eval,C_VALIDCOMBINATION vcomb
+where fa.account_id=eval.c_elementvalue_id 
+and fa.dateacct between $P{DateAcctFrom} and $P{DateAcctTo}
+and ($P{AD_Org_ID}=0 OR fa.AD_ORG_ID=$P{AD_Org_ID}) 
+and fa.AD_CLIENT_ID= $P{AD_Client_ID}
+AND vcomb.AD_Org_ID=fa.AD_Org_ID
+AND vcomb.account_id = fa.account_id
+AND eval.c_elementvalue_id = vcomb.account_id
+AND eval.accounttype = 'E')) from dual)
+ as TOTALGAIN from dual]]></queryString>
+
+	<field name="totalgain" class="java.math.BigDecimal"/>
+
+		<background>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</background>
+		<title>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</title>
+		<pageHeader>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</pageHeader>
+		<columnHeader>
+			<band height="18"  isSplitAllowed="true" >
+				<textField isStretchWithOverflow="false" pattern="#,##0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="0"
+						y="0"
+						width="110"
+						height="17"
+						forecolor="#000000"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Right">
+						<font pdfFontName="Helvetica-Bold" size="9" isBold="true" isItalic="false" isUnderline="false" isPdfEmbedded ="false" isStrikeThrough="false" />
+					</textElement>
+				<textFieldExpression   class="java.math.BigDecimal"><![CDATA[$F{totalgain}]]></textFieldExpression>
+				</textField>
+			</band>
+		</columnHeader>
+		<detail>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</detail>
+		<columnFooter>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</columnFooter>
+		<pageFooter>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</pageFooter>
+		<summary>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</summary>
+</jasperReport>

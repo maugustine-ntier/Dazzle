@@ -1,0 +1,563 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="TrialBalance" pageWidth="595" pageHeight="782" columnWidth="567" leftMargin="14" rightMargin="14" topMargin="0" bottomMargin="0" uuid="ea07fb74-f708-4650-8af3-438cf260d93b">
+	<property name="ireport.scriptlethandling" value="0"/>
+	<property name="ireport.encoding" value="UTF-8"/>
+	<property name="ireport.zoom" value="1.2100000000000006"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<import value="net.sf.jasperreports.engine.*"/>
+	<import value="net.sf.jasperreports.engine.data.*"/>
+	<import value="java.util.*"/>
+	<parameter name="AD_OrgPrint_ID" class="java.lang.Integer">
+		<parameterDescription><![CDATA[Organization]]></parameterDescription>
+		<defaultValueExpression><![CDATA[0]]></defaultValueExpression>
+	</parameter>
+	<parameter name="DateAcctFrom" class="java.util.Date">
+		<parameterDescription><![CDATA[Account Date]]></parameterDescription>
+		<defaultValueExpression><![CDATA[new Date (100,0,1)]]></defaultValueExpression>
+	</parameter>
+	<parameter name="DateAcctTo" class="java.util.Date">
+		<parameterDescription><![CDATA[To]]></parameterDescription>
+		<defaultValueExpression><![CDATA[new Date ()]]></defaultValueExpression>
+	</parameter>
+	<parameter name="TOTALS" class="java.util.HashMap" isForPrompting="false">
+		<defaultValueExpression><![CDATA[new java.util.HashMap()]]></defaultValueExpression>
+	</parameter>
+	<parameter name="C_ElementValue_ID" class="java.lang.Double" isForPrompting="false"/>
+	<parameter name="SUBREPORT_DIR" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA["/A/workspace/nTier/dazzle/dazzle2/dazzleDevelopment/DazzlePos/src/org/compiere/ReportCustom/"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="BASE_PATH" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA["/A/workspace/nTier/dazzle/dazzle2/dazzleDevelopment/DazzlePos/src/org/compiere/ReportCustom/"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="image_file_name" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA["/A/workspace/nTier/dazzle/project/various/logo.png"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="AD_CLIENT_ID" class="java.lang.Integer"/>
+	<queryString>
+		<![CDATA[select ev2.C_ElementValue_ID,'' as Organization,ev2.AccountName, sum(ev2.DebitAmount) as DebitAmount,
+sum(ev2.CreditAmount) as CreditAmount,
+sum(ev2.AccountBalance) as AccountBalance
+ from
+((select ev.C_ElementValue_ID,max(org.Name) as Organization,ev.VALUE || '-' || ev.NAME as AccountName, sum(COALESCE(fa.AMTACCTDR,0))
+as DebitAmount,sum(COALESCE(fa.AMTACCTCR,0)) as CreditAmount,
+(sum(COALESCE(fa.AMTACCTDR,0)) - sum(COALESCE(fa.AMTACCTCR,0))) as AccountBalance
+from FACT_ACCT fa,C_ELEMENTVALUE ev, AD_ORG org
+where fa.AD_Client_ID= $P{AD_CLIENT_ID}
+and ($P{AD_OrgPrint_ID}=0 OR fa.AD_ORG_ID=$P{AD_OrgPrint_ID})
+and (fa.DATEACCT >= $P{DateAcctFrom} and fa.DATEACCT <=$P{DateAcctTo} )
+and org.AD_ORG_ID=fa.AD_Org_ID
+and ev.C_ELEMENTVALUE_ID=fa.Account_ID
+group by ev.VALUE || '-' || ev.NAME,ev.C_ElementValue_ID)
+Union
+(select ev.C_ElementValue_ID,'' as Organization,ev.VALUE || '-' || ev.NAME as AccountName,0
+as DebitAmount,0 as CreditAmount,
+0 as AccountBalance
+from FACT_ACCT fa,C_ELEMENTVALUE ev, AD_ORG org
+where fa.AD_Client_ID=$P{AD_CLIENT_ID}
+and ($P{AD_OrgPrint_ID}=0 OR fa.AD_ORG_ID=$P{AD_OrgPrint_ID})
+and org.AD_ORG_ID=fa.AD_Org_ID
+and ev.C_ELEMENTVALUE_ID=fa.Account_ID)) ev2
+group by ev2.accountName,ev2.C_ElementValue_ID
+order by ev2.accountName;]]>
+	</queryString>
+	<field name="ORGANIZATION" class="java.lang.String"/>
+	<field name="ACCOUNTNAME" class="java.lang.String"/>
+	<field name="DEBITAMOUNT" class="java.lang.Double"/>
+	<field name="CREDITAMOUNT" class="java.lang.Double"/>
+	<field name="ACCOUNTBALANCE" class="java.lang.Double"/>
+	<field name="C_ElementValue_ID" class="java.lang.Double"/>
+	<variable name="TOTAL DEBIT" class="java.lang.Double" resetType="Group" resetGroup="ORGANIZATION" calculation="Sum">
+		<variableExpression><![CDATA[$F{DEBITAMOUNT}]]></variableExpression>
+	</variable>
+	<variable name="TOTAL CREDIT" class="java.lang.Double" resetType="Group" resetGroup="ORGANIZATION" calculation="Sum">
+		<variableExpression><![CDATA[$F{CREDITAMOUNT}]]></variableExpression>
+	</variable>
+	<variable name="TOTAL BALANCE" class="java.lang.Double" resetType="Group" resetGroup="ORGANIZATION" calculation="Sum">
+		<variableExpression><![CDATA[$F{ACCOUNTBALANCE}]]></variableExpression>
+	</variable>
+	<variable name="GRAND TOTAL DEBIT" class="java.lang.Double" calculation="Sum">
+		<variableExpression><![CDATA[$F{DEBITAMOUNT}]]></variableExpression>
+	</variable>
+	<variable name="GRAND TOTAL CREDIT" class="java.lang.Double" calculation="Sum">
+		<variableExpression><![CDATA[$F{CREDITAMOUNT}]]></variableExpression>
+	</variable>
+	<variable name="GRAND TOTAL BALANCE" class="java.lang.Double" calculation="Sum">
+		<variableExpression><![CDATA[$F{ACCOUNTBALANCE}]]></variableExpression>
+	</variable>
+	<variable name="TOTAL" class="java.lang.Double">
+		<variableExpression><![CDATA[(java.lang.Double)($V{runningbal})]]></variableExpression>
+	</variable>
+	<variable name="runningbal" class="java.lang.Double" resetType="None" calculation="System">
+		<initialValueExpression><![CDATA[new java.lang.Double(0)]]></initialValueExpression>
+	</variable>
+	<variable name="GRANDTOTAL" class="java.lang.Double" calculation="Sum">
+		<variableExpression><![CDATA[new java.lang.Double( $V{runningbal}.doubleValue() + $F{ACCOUNTBALANCE}.doubleValue()  )]]></variableExpression>
+		<initialValueExpression><![CDATA[new Double(0)]]></initialValueExpression>
+	</variable>
+	<group name="ORGANIZATION">
+		<groupExpression><![CDATA[$F{ORGANIZATION}]]></groupExpression>
+		<groupHeader>
+			<band splitType="Stretch"/>
+		</groupHeader>
+		<groupFooter>
+			<band height="20" splitType="Stretch">
+				<printWhenExpression><![CDATA[new Boolean(false)]]></printWhenExpression>
+				<staticText>
+					<reportElement key="staticText-4" x="0" y="0" width="33" height="20" forecolor="#0066FF" uuid="636e5555-2bc6-4272-a62c-a71bc7cc79c8"/>
+					<box bottomPadding="1">
+						<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement>
+						<font fontName="DejaVu Sans" size="10"/>
+					</textElement>
+					<text><![CDATA[Total]]></text>
+				</staticText>
+				<textField isBlankWhenNull="false">
+					<reportElement key="textField-1" x="34" y="0" width="146" height="20" forecolor="#0066FF" uuid="4adbe058-9870-44a6-9dc7-9936dfc675a1"/>
+					<box bottomPadding="1">
+						<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement>
+						<font fontName="DejaVu Sans" size="9"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{ORGANIZATION}]]></textFieldExpression>
+				</textField>
+				<textField pattern="#,##0.00" isBlankWhenNull="false">
+					<reportElement key="textField-2" x="266" y="0" width="81" height="20" forecolor="#0066FF" uuid="439ef2f9-f851-44a5-8886-80e97460e34b"/>
+					<box leftPadding="2" rightPadding="2">
+						<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Right">
+						<font fontName="DejaVu Sans" size="9"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{TOTAL DEBIT}]]></textFieldExpression>
+				</textField>
+				<textField pattern="#,##0.00" isBlankWhenNull="false">
+					<reportElement key="textField-3" x="347" y="0" width="76" height="20" forecolor="#0066FF" uuid="93d27a7e-9974-4c9a-858a-372ef833d494"/>
+					<box leftPadding="2" rightPadding="2">
+						<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Right">
+						<font fontName="DejaVu Sans" size="9"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{TOTAL CREDIT}]]></textFieldExpression>
+				</textField>
+				<textField pattern="#,##0.00" isBlankWhenNull="false">
+					<reportElement key="textField-4" x="423" y="0" width="74" height="20" forecolor="#0066FF" uuid="92d6444d-40f6-483c-a0d2-2b7a98741a98"/>
+					<box leftPadding="2" rightPadding="2">
+						<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Right">
+						<font fontName="DejaVu Sans" size="9" pdfFontName="Helvetica"/>
+					</textElement>
+					<textFieldExpression><![CDATA[new Double ($V{TOTAL DEBIT}.intValue() - $V{TOTAL CREDIT}.intValue())]]></textFieldExpression>
+				</textField>
+				<textField pattern="#,##0.00" isBlankWhenNull="false">
+					<reportElement key="textField-8" x="497" y="0" width="70" height="20" forecolor="#0066FF" uuid="2f3a5830-66c8-4c34-ac3e-832992c6eb62"/>
+					<box leftPadding="2" rightPadding="2">
+						<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Right">
+						<font fontName="DejaVu Sans" size="9" pdfFontName="Helvetica"/>
+					</textElement>
+					<textFieldExpression><![CDATA[new Double ($V{TOTAL DEBIT}.intValue() - $V{TOTAL CREDIT}.intValue())]]></textFieldExpression>
+				</textField>
+				<line>
+					<reportElement key="line-2" x="1" y="19" width="566" height="1" uuid="ed279ba5-8437-4558-983e-fb0451eb159a"/>
+				</line>
+			</band>
+		</groupFooter>
+	</group>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="43" splitType="Stretch">
+			<line>
+				<reportElement key="line-6" positionType="Float" x="24" y="38" width="531" height="1" uuid="62ff495e-3c6a-46c2-b338-7102d706fb50"/>
+			</line>
+			<subreport isUsingCache="true">
+				<reportElement key="subreport-1" x="13" y="10" width="532" height="17" uuid="64f9a04b-0752-4ca9-ab9e-a00cf563ba19"/>
+				<subreportParameter name="BASE_PATH">
+					<subreportParameterExpression><![CDATA[$P{BASE_PATH}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="AD_ORG_ID">
+					<subreportParameterExpression><![CDATA[new BigDecimal($P{AD_OrgPrint_ID})]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="AD_CLIENT_ID">
+					<subreportParameterExpression><![CDATA[new BigDecimal($P{AD_CLIENT_ID})]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="image_file_name">
+					<subreportParameterExpression><![CDATA[$P{image_file_name}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[$P{BASE_PATH} + "Header Subreport.jasper"]]></subreportExpression>
+			</subreport>
+		</band>
+	</title>
+	<pageHeader>
+		<band height="55" splitType="Stretch">
+			<staticText>
+				<reportElement key="staticText-9" x="212" y="5" width="132" height="16" uuid="a6617dbd-3f50-42f6-843a-bc31835be066"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font fontName="DejaVu Sans" size="13" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[TRIAL BALANCE]]></text>
+			</staticText>
+			<textField pattern="" isBlankWhenNull="false">
+				<reportElement key="textField" x="371" y="24" width="153" height="19" forecolor="#000000" uuid="b52d638a-7120-4eda-a53c-44f9fc18bf4c"/>
+				<box topPadding="4">
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right">
+					<font fontName="DejaVu Sans" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Page " + $V{PAGE_NUMBER} + " of "]]></textFieldExpression>
+			</textField>
+			<textField evaluationTime="Report" pattern="" isBlankWhenNull="false">
+				<reportElement key="textField" mode="Transparent" x="527" y="24" width="36" height="19" forecolor="#000000" backcolor="#FFFFFF" uuid="7e75e52e-92d7-4475-838a-96d9219f960d"/>
+				<box topPadding="4">
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font fontName="DejaVu Sans" size="8" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" isPdfEmbedded="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA["" + $V{PAGE_NUMBER}]]></textFieldExpression>
+			</textField>
+			<textField pattern="dd/MM/yyyy" isBlankWhenNull="false">
+				<reportElement key="textField-5" x="180" y="24" width="81" height="19" forecolor="#000000" uuid="60f09d02-6e57-4fa7-8e6d-63e2dc084a2b"/>
+				<box topPadding="5">
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font fontName="DejaVu Sans" size="10" isBold="true" isItalic="false" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{DateAcctFrom}]]></textFieldExpression>
+			</textField>
+			<textField pattern="dd/MM/yyyy" isBlankWhenNull="false">
+				<reportElement key="textField-6" x="284" y="24" width="81" height="19" forecolor="#000000" uuid="540f7697-8fc1-413d-b62b-153a841e456f"/>
+				<box topPadding="4">
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font fontName="DejaVu Sans" size="10" isBold="true" isItalic="false" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{DateAcctTo}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement key="staticText-5" x="258" y="24" width="22" height="19" uuid="dd82822b-ea88-48f6-bd4c-176e1ff64359"/>
+				<box topPadding="4">
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font fontName="DejaVu Sans" size="10" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[To]]></text>
+			</staticText>
+			<line>
+				<reportElement key="line-5" x="1" y="46" width="566" height="1" uuid="7bd053bb-0690-4f22-9a54-f2e45cb546c1"/>
+			</line>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band height="18" splitType="Stretch">
+			<rectangle radius="2">
+				<reportElement key="rectangle" mode="Opaque" x="1" y="1" width="565" height="17" forecolor="#FFFFFF" backcolor="#FFFFFF" uuid="603b8432-bf4e-4b6a-9ec5-43a767aa123c"/>
+				<graphicElement>
+					<pen lineWidth="0.5" lineStyle="Solid"/>
+				</graphicElement>
+			</rectangle>
+			<staticText>
+				<reportElement key="staticText" x="0" y="0" width="180" height="18" forecolor="#000000" uuid="3a544d50-cc68-49e2-9955-0b4a3cf8e9b6"/>
+				<box topPadding="2" leftPadding="2" rightPadding="2">
+					<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font fontName="DejaVu Sans" size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[ACCOUNT NAME
+]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText" x="167" y="0" width="99" height="18" forecolor="#000000" uuid="426ca3ff-25bc-499f-bdcc-c127fac7f070"/>
+				<box topPadding="2" leftPadding="2" rightPadding="2">
+					<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right">
+					<font fontName="DejaVu Sans" size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[BEGIN BALANCE
+]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText" x="266" y="0" width="81" height="18" forecolor="#000000" uuid="9465aa5b-ae16-41c3-be62-d6b61771f5a2"/>
+				<box topPadding="2" leftPadding="2" rightPadding="2">
+					<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right">
+					<font fontName="DejaVu Sans" size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[DEBIT AMOUNT]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText" x="347" y="0" width="76" height="18" forecolor="#000000" uuid="ad78f632-ab73-4839-a33a-215c412bbbbb"/>
+				<box topPadding="2" leftPadding="2" rightPadding="2">
+					<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right">
+					<font fontName="DejaVu Sans" size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[CREDIT AMOUNT]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText" x="423" y="0" width="74" height="18" forecolor="#000000" uuid="f9d63e7d-21aa-4cc8-ae13-8e243d49c2c9"/>
+				<box topPadding="2" leftPadding="2" rightPadding="2">
+					<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right">
+					<font fontName="DejaVu Sans" size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[MOVE BALANCE]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-7" x="497" y="0" width="69" height="18" forecolor="#000000" uuid="d049d4d9-97f6-4627-969f-901e21b69aa7"/>
+				<box topPadding="2" leftPadding="2" rightPadding="2">
+					<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right">
+					<font fontName="DejaVu Sans" size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[BALANCE]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="17" splitType="Stretch">
+			<line>
+				<reportElement key="line-1" x="1" y="16" width="566" height="1" uuid="7ad39dc3-1ca8-4fe7-a20c-c050296e3ace"/>
+			</line>
+			<textField pattern="" isBlankWhenNull="false">
+				<reportElement key="textField" x="0" y="0" width="180" height="17" forecolor="#000000" uuid="cb066318-f7e4-4701-9ac9-0800f157026a"/>
+				<box leftPadding="2" rightPadding="2">
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font fontName="DejaVu Sans" size="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" isPdfEmbedded="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{ACCOUNTNAME}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00" isBlankWhenNull="false">
+				<reportElement key="textField" x="347" y="0" width="76" height="17" forecolor="#000000" uuid="736f987b-1dde-4bd1-8d0f-ee73947610e6"/>
+				<box leftPadding="2" rightPadding="2">
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right">
+					<font fontName="DejaVu Sans" size="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" isPdfEmbedded="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{CREDITAMOUNT}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00" isBlankWhenNull="false">
+				<reportElement key="textField" x="423" y="0" width="74" height="17" forecolor="#000000" uuid="9aa4d2aa-75d9-4db3-9d3d-76ee0e9f86e8"/>
+				<box leftPadding="2" rightPadding="2">
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right">
+					<font fontName="DejaVu Sans" size="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" isPdfEmbedded="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{ACCOUNTBALANCE}]]></textFieldExpression>
+			</textField>
+			<textField evaluationTime="Band" pattern="#,##0.00" isBlankWhenNull="false">
+				<reportElement key="textField-7" isPrintRepeatedValues="false" x="497" y="0" width="70" height="17" forecolor="#000000" uuid="35512013-521a-4528-971c-cb4a2413fb96"/>
+				<box leftPadding="2" rightPadding="2">
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right">
+					<font fontName="DejaVu Sans" size="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" isPdfEmbedded="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new java.lang.Double( ( $V{runningbal} == null ? new Double("0.00").doubleValue() : $V{runningbal}.doubleValue() ) + $F{ACCOUNTBALANCE}.doubleValue()  )]]></textFieldExpression>
+			</textField>
+			<subreport isUsingCache="true">
+				<reportElement key="subreport-1" x="164" y="0" width="86" height="17" uuid="d4bcb0af-6e7b-4d32-b984-80439800984b"/>
+				<subreportParameter name="DateAcctFrom">
+					<subreportParameterExpression><![CDATA[$P{DateAcctFrom}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="C_ElementValue_ID">
+					<subreportParameterExpression><![CDATA[$F{C_ElementValue_ID}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="AD_OrgPrint_ID">
+					<subreportParameterExpression><![CDATA[$P{AD_OrgPrint_ID}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<returnValue subreportVariable="accountbalance" toVariable="runningbal"/>
+				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "FwdBalance.jasper"]]></subreportExpression>
+			</subreport>
+			<textField pattern="#,##0.00" isBlankWhenNull="false">
+				<reportElement key="textField" x="266" y="0" width="81" height="17" forecolor="#000000" uuid="eaccd114-0fad-418f-a32e-94d740b6b4a1"/>
+				<box leftPadding="2" rightPadding="2">
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right">
+					<font fontName="DejaVu Sans" size="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" isPdfEmbedded="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{DEBITAMOUNT}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band splitType="Stretch"/>
+	</pageFooter>
+	<lastPageFooter>
+		<band height="39" splitType="Prevent">
+			<textField pattern="#,##0.00" isBlankWhenNull="false">
+				<reportElement key="textField" x="423" y="2" width="74" height="22" forecolor="#0099FF" uuid="6cd1fadd-ebf1-4ab9-ab69-bdbef0995215"/>
+				<box leftPadding="2" bottomPadding="1" rightPadding="2">
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right">
+					<font fontName="DejaVu Sans" size="9" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new Double($V{GRAND TOTAL DEBIT}.intValue() - $V{GRAND TOTAL CREDIT}.intValue())]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00" isBlankWhenNull="false">
+				<reportElement key="textField" x="347" y="2" width="76" height="22" forecolor="#0099FF" uuid="15884411-d38d-4874-ba82-59a40ea960a0"/>
+				<box leftPadding="2" bottomPadding="1" rightPadding="2">
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right">
+					<font fontName="DejaVu Sans" size="9" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{GRAND TOTAL CREDIT}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00" isBlankWhenNull="false">
+				<reportElement key="textField" x="266" y="2" width="81" height="22" forecolor="#0099FF" uuid="03b1c7a3-56d7-4343-b85e-3057c3040b8e"/>
+				<box leftPadding="2" bottomPadding="1" rightPadding="2">
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right">
+					<font fontName="DejaVu Sans" size="9" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{GRAND TOTAL DEBIT}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement key="staticText-1" x="0" y="2" width="180" height="22" forecolor="#000000" uuid="d1ef913f-13d4-4252-ae1f-abd5b89d8570"/>
+				<box leftPadding="2" bottomPadding="1" rightPadding="2">
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font fontName="DejaVu Sans" size="9" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[GRAND TOTALS]]></text>
+			</staticText>
+			<textField pattern="#,##0.00" isBlankWhenNull="false">
+				<reportElement key="textField-9" x="497" y="2" width="70" height="22" forecolor="#0099FF" uuid="15e78592-26e7-42ae-84ce-64c2e4270375"/>
+				<box leftPadding="2" bottomPadding="1" rightPadding="2">
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right">
+					<font fontName="DejaVu Sans" size="9" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new Double($V{GRAND TOTAL DEBIT}.intValue() - $V{GRAND TOTAL CREDIT}.intValue())]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement key="line-3" x="1" y="24" width="566" height="1" uuid="164fa24b-e4f2-45b4-a38b-6fd9cedd7428"/>
+			</line>
+			<line>
+				<reportElement key="line-4" x="1" y="1" width="566" height="1" uuid="0afadc30-d2bd-409d-b55d-c05578493972"/>
+			</line>
+		</band>
+	</lastPageFooter>
+	<summary>
+		<band splitType="Stretch"/>
+	</summary>
+</jasperReport>

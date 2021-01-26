@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Header Subreport" pageWidth="535" pageHeight="842" whenNoDataType="AllSectionsNoDetail" columnWidth="535" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="bb863aff-2647-431f-96c7-b6d60f09a920">
+	<property name="ireport.scriptlethandling" value="0"/>
+	<property name="ireport.encoding" value="UTF-8"/>
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<import value="net.sf.jasperreports.engine.*"/>
+	<import value="java.util.*"/>
+	<import value="net.sf.jasperreports.engine.data.*"/>
+	<parameter name="AD_CLIENT_ID" class="java.math.BigDecimal">
+		<defaultValueExpression><![CDATA[new java.math.BigDecimal(1000003)]]></defaultValueExpression>
+	</parameter>
+	<parameter name="BASE_PATH" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA["org/compiere/reportcustom/"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="image_file_name" class="java.lang.String" isForPrompting="false"/>
+	<parameter name="AD_ORG_ID" class="java.math.BigDecimal">
+		<defaultValueExpression><![CDATA[new java.math.BigDecimal(1000004)]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[select
+	c.address1 AS ADDR1,
+	c.address2 AS ADDR2,
+	c.city AS CITY,
+	c.postal AS PCODE,
+	o.phone as telephone,
+	o.fax,
+	o.phone2 as mobilephone,
+	o.email as emailaddress,
+	o.zz_cknumber as zz_cknumber,cl.zz_header as companyheader,o.taxid,
+	CASE WHEN o.taxid !=''
+	THEN true
+        ELSE false  END AS  vatprinted,
+	(Select true from adempiere.c_location where $P{AD_ORG_ID} > 0 limit 1) as printtelfax
+
+from adempiere.c_location c
+
+LEFT OUTER JOIN adempiere.ad_client cl ON c.ad_client_id=cl.ad_client_id
+LEFT OUTER JOIN adempiere.ad_orginfo o ON o.C_Location_ID=c.C_Location_ID
+where
+  ($P{AD_ORG_ID} > 0 and o.ad_org_id=$P{AD_ORG_ID})
+and c.ad_client_id=$P{AD_CLIENT_ID}]]>
+	</queryString>
+	<field name="addr1" class="java.lang.String"/>
+	<field name="addr2" class="java.lang.String"/>
+	<field name="city" class="java.lang.String"/>
+	<field name="pcode" class="java.lang.String"/>
+	<field name="telephone" class="java.lang.String"/>
+	<field name="fax" class="java.lang.String"/>
+	<field name="mobilephone" class="java.lang.String"/>
+	<field name="emailaddress" class="java.lang.String"/>
+	<field name="zz_cknumber" class="java.lang.String"/>
+	<field name="companyheader" class="java.lang.String"/>
+	<field name="taxid" class="java.lang.String"/>
+	<field name="vatprinted" class="java.lang.Boolean"/>
+	<field name="printtelfax" class="java.lang.Boolean"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band splitType="Stretch"/>
+	</title>
+	<pageHeader>
+		<band height="114" splitType="Stretch">
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement key="textField-1" isPrintRepeatedValues="false" x="286" y="22" width="241" height="81" isRemoveLineWhenBlank="true" uuid="73c40cf7-08b9-4ad2-91f9-b2ca32713848"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textFieldExpression><![CDATA[(($F{addr1} !=null)?$F{addr1}:"")+ (($F{addr2}!=null)?"\n"+$F{addr2}:"")+
+((($F{city} !=null)?"\n"+$F{city}:" ")+"  "+(($F{pcode} !=null)?$F{pcode}:""))+
+(($P{AD_ORG_ID}.intValue() !=0)?"\n"+"Tel : ":"")+(($F{telephone} !=null)?$F{telephone}:"")+(($P{AD_ORG_ID}.intValue() !=0)?"\n" +"Fax: ":"")+(($F{fax} !=null)?$F{fax}:"")
++(($F{zz_cknumber} !=null)?"\n"+$F{zz_cknumber}:"")+(($P{AD_ORG_ID}.intValue() !=0)?"  VAT No: ":"")+(($F{taxid} !=null)?$F{taxid}:"")]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement key="textField-9" x="5" y="2" width="281" height="20" isRemoveLineWhenBlank="true" uuid="ddc6258b-0ea5-43c4-a61b-33ee7374226b"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="8" isBold="false" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{companyheader}]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band splitType="Stretch"/>
+	</columnHeader>
+	<detail>
+		<band splitType="Stretch"/>
+	</detail>
+	<columnFooter>
+		<band splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band splitType="Stretch"/>
+	</pageFooter>
+	<summary>
+		<band splitType="Stretch"/>
+	</summary>
+</jasperReport>
